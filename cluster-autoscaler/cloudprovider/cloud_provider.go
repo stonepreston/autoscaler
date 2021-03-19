@@ -48,6 +48,8 @@ const (
 	GceProviderName = "gce"
 	// HetznerProviderName gets the provider name of hetzner
 	HetznerProviderName = "hetzner"
+	// JujuProviderName gets the provider name of juju
+	JujuProviderName = "juju"
 	// MagnumProviderName gets the provider name of magnum
 	MagnumProviderName = "magnum"
 	// KubemarkProviderName gets the provider name of kubemark
