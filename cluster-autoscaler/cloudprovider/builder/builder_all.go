@@ -32,6 +32,7 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/hetzner"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/huaweicloud"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/ionoscloud"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/linode"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/magnum"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/ovhcloud"
@@ -56,6 +57,7 @@ var AvailableCloudProviders = []string{
 	cloudprovider.ClusterAPIProiverName,
 	cloudprovider.IonoscloudProviderName,
 	cloudprovider.LinodeProviderName,
+	cloudprovider.JujuProviderName,
 }
 
 // DefaultCloudProvider is GCE.
@@ -95,6 +97,8 @@ func buildCloudProvider(opts config.AutoscalingOptions, do cloudprovider.NodeGro
 		return ionoscloud.BuildIonosCloud(opts, do, rl)
 	case cloudprovider.LinodeProviderName:
 		return linode.BuildLinode(opts, do, rl)
+	case cloudprovider.JujuProviderName:
+		return juju.BuildJuju(opts, do, rl)
 	}
 	return nil
 }
