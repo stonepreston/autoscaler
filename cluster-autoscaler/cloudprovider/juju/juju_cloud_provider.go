@@ -17,10 +17,11 @@ limitations under the License.
 package juju
 
 import (
-	"fmt"
 	"io"
 	"os"
-	"strings"
+
+	"github.com/juju/juju/api"
+	names "github.com/juju/names/v4"
 
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -34,24 +35,18 @@ var _ cloudprovider.CloudProvider = (*jujuCloudProvider)(nil)
 
 const (
 	// GPULabel is the label added to nodes with GPU resource.
-	GPULabel = "cloud.juju/gpu-node"
-
-	doProviderIDPrefix = "juju://"
+	GPULabel = "juju/gpu-node"
 )
 
 // jujuCloudProvider implements CloudProvider interface.
 type jujuCloudProvider struct {
-	manager         *Manager
+	connection      *api.Connection
 	resourceLimiter *cloudprovider.ResourceLimiter
 }
 
-func newJujuCloudProvider(manager *Manager, rl *cloudprovider.ResourceLimiter) (*jujuCloudProvider, error) {
-	if err := manager.Refresh(); err != nil {
-		return nil, err
-	}
-
+func newJujuCloudProvider(conn *api.Connection, rl *cloudprovider.ResourceLimiter) (*jujuCloudProvider, error) { //TODO
 	return &jujuCloudProvider{
-		manager:         manager,
+		connection:      conn,
 		resourceLimiter: rl,
 	}, nil
 }
@@ -63,46 +58,28 @@ func (j *jujuCloudProvider) Name() string {
 
 // NodeGroups returns all node groups configured for this cloud provider.
 func (j *jujuCloudProvider) NodeGroups() []cloudprovider.NodeGroup {
-	nodeGroups := make([]cloudprovider.NodeGroup, len(j.manager.nodeGroups))
-	for i, ng := range j.manager.nodeGroups {
-		nodeGroups[i] = ng
-	}
-	return nodeGroups
+	var groups []cloudprovider.NodeGroup
+	groups = append(groups, cloudprovider.NodeGroup{
+		id:         "juju",
+		minSize:    3,
+		maxSize:    10,
+		target:     5,
+		connection: &j.connection,
+	})
+	return groups
 }
 
 // NodeGroupForNode returns the node group for the given node, nil if the node
 // should not be processed by cluster autoscaler, or non-nil error if such
 // occurred. Must be implemented.
 func (j *jujuCloudProvider) NodeGroupForNode(node *apiv1.Node) (cloudprovider.NodeGroup, error) {
-	providerID := node.Spec.ProviderID
-	nodeID := toNodeID(providerID)
-
-	klog.V(5).Infof("checking nodegroup for node ID: %q", nodeID)
-
-	// NOTE(arslan): the number of node groups per cluster is usually very
-	// small. So even though this looks like quadratic runtime, it's OK to
-	// proceed with this.
-	for _, group := range j.manager.nodeGroups {
-		klog.V(5).Infof("iterating over node group %q", group.Id())
-		nodes, err := group.Nodes()
-		if err != nil {
-			return nil, err
-		}
-
-		for _, node := range nodes {
-			klog.V(6).Infof("checking node has: %q want: %q", node.Id, providerID)
-			// CA uses node.Spec.ProviderID when looking for (un)registered nodes,
-			// so we need to use it here too.
-			if node.Id != providerID {
-				continue
-			}
-
-			return group, nil
-		}
-	}
-
-	// there is no "ErrNotExist" error, so we have to return a nil error
-	return nil, nil
+	return cloudprovider.NodeGroup{
+		id:         "juju",
+		minSize:    3,
+		maxSize:    10,
+		target:     5,
+		connection: &j.connection,
+	}, nil
 }
 
 // Pricing returns pricing model for this cloud provider or error if not
@@ -157,8 +134,9 @@ func (j *jujuCloudProvider) Cleanup() error {
 // update cloud provider state. In particular the list of node groups returned
 // by NodeGroups() can change as a result of CloudProvider.Refresh().
 func (j *jujuCloudProvider) Refresh() error {
-	klog.V(4).Info("Refreshing node group cache")
-	return j.manager.Refresh()
+	// klog.V(4).Info("Refreshing node group cache")
+	// return d.manager.Refresh() //TODO
+	return nil
 }
 
 // BuildJuju builds the Juju cloud provider.
@@ -177,28 +155,65 @@ func BuildJuju(
 		defer configFile.Close()
 	}
 
-	manager, err := newManager(configFile)
-	if err != nil {
-		klog.Fatalf("Failed to create Juju manager: %v", err)
+	type Controller struct {
+		APIEndpoints  []string
+		CACert        string
+		PublicDNSName string
 	}
 
-	// the cloud provider automatically uses all node pools in Juju.
-	// This means we don't use the cloudprovider.NodeGroupDiscoveryOptions
-	// flags (which can be set via '--node-group-auto-discovery' or '-nodes')
-	provider, err := newJujuCloudProvider(manager, rl)
+	controller := Controller{
+		APIEndpoints: []string{"10.245.164.22:17070", "10.5.0.8:17070", "252.0.8.1:17070", "10.245.164.12:17070",
+			"10.5.0.7:17070", "252.0.7.1:17070", "10.245.164.198:17070", "10.5.0.18:17070",
+			"252.0.18.1:17070"},
+		CACert: "-----BEGIN CERTIFICATE-----" +
+			"MIID8zCCAlugAwIBAgIUUcUGXoAQImjr9i5aXndLR+kUAfgwDQYJKoZIhvcNAQEL" +
+			"BQAwITENMAsGA1UEChMESnVqdTEQMA4GA1UEAxMHanVqdS1jYTAeFw0yMTAzMDMy" +
+			"MDE1NDZaFw0zMTAzMDMyMDIwNDZaMCExDTALBgNVBAoTBEp1anUxEDAOBgNVBAMT" +
+			"B2p1anUtY2EwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQC8Zm2gP1q/" +
+			"Y6AhJQWFAppHZgL2CJ0XwWj7TnKO4B/W7w0dSsj0KobdLIpihwZAEypUcUv9FjqS" +
+			"MAQ55/syMzMoGsMQa/xIbQwH5JqhQKfsFyRX9yAJ6TYNfBlvo8tG8XsyqtE6eZgg" +
+			"k+0nRm7XRsvf0ky5+grG6aAAn1PJLrF1SAUfW1KFvAFtM/k8OkuUwtowiJyzW4jL" +
+			"4UXZk9VGlgsKAF99N+CICG3ySx8EY+NLtnWMmHfrmpdFlCFqd10xRowfvirv6rIy" +
+			"nOTx1QBWJO36jQ3gECgBDHml6u2lQjJ+VaSRGakTYxO5R//Pmw2EHRbR90U/CJI7" +
+			"SEMrTUzDzwfSCO1/UZ0ZsZnvFAj6LSjiLpAeWjXnh3jyAh5ltup9esDwD6QvP5hF" +
+			"vkYRA3LZ40Y2yVANRrgLkHjl7w5LjbIHKJjpwpkfpXxlpLXzpGpMiMkxwKfccw44" +
+			"Q04Ek8mnVp0+uqs8ak1WWtbi1tKDFMcrArq/0D5xhqq9w4iddxP385cCAwEAAaMj" +
+			"MCEwDgYDVR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL" +
+			"BQADggGBAGutPcN/cLPbwYtgWpeEftEn5ZErTq7gE4lVb1QSOjAg3L489A8eaw4i" +
+			"Ko0sabhLQXASCe9J8NVT3VBYnEaNAm9Nb6GOwrtvq1H/4y06s4BYuSu2TKOqsxKK" +
+			"tvc1Z7ARU0Dp13VVQm4xtX46Td29hYrHWtlm69shPLUe0gFsBqeOLu2jlMjk3vde" +
+			"qB6j3EAUFg4uR9sy/CXKiDx0LewwrWm/dXs+GQ7Tr9atH8Wr6/Kwpu52s1mkcnaW" +
+			"mM3JRXnohEjmggUiposPJfNzFmfvCo8iwm1rkt2UUHsnYQb5Kw+0sCsGbNyufGKh" +
+			"TtjdnjRK+V9OjYEb9wS+aXL0sUn39MCcMJt1OxXRi+5nSQFBG7/G1B1KDqjtPLM9" +
+			"NN15JkIidoRDcCjstxnr3a7oVlKzNPt4fukT+LEEH45+unfkD6i/FeMHm8aX3Xz0" +
+			"mo3RpFFJb5Uhdwrpz214V2B3mI1bUxa0tE71uAyfLJA1CbpWIBs33yfb3Ky4PEv3" +
+			"HOQEnSY0yw==" +
+			"-----END CERTIFICATE-----",
+		PublicDNSName: "",
+	}
+
+	model := map[string]string{
+		"ModelUUID": "7c63f91a-706a-4da9-868b-c67d1f25ea4b",
+	}
+
+	account := map[string]string{
+		"User":     "admin",
+		"Password": "084aa8cffeea398788ed8df4747c6f2b",
+	}
+
+	conn, err := api.Open(&api.Info{
+		Addrs:  controller.APIEndpoints,
+		CACert: controller.CACert,
+		// SNIHostName: controller["PublicDNSName"], // optional
+		ModelTag: names.NewModelTag(model["ModelUUID"]),
+		Tag:      names.NewUserTag(account["User"]),
+		Password: account["Password"],
+	}, api.DefaultDialOpts())
+
+	provider, err := newJujuCloudProvider(&conn, rl)
 	if err != nil {
 		klog.Fatalf("Failed to create Juju cloud provider: %v", err)
 	}
 
 	return provider
-}
-
-// toProviderID returns a provider ID from the given node ID.
-func toProviderID(nodeID string) string {
-	return fmt.Sprintf("%s%s", doProviderIDPrefix, nodeID)
-}
-
-// toNodeID returns a node or droplet ID from the given provider ID.
-func toNodeID(providerID string) string {
-	return strings.TrimPrefix(providerID, doProviderIDPrefix)
 }

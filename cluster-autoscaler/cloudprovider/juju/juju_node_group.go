@@ -17,11 +17,10 @@ limitations under the License.
 package juju
 
 import (
-	"context"
-	"errors"
 	"fmt"
 
-	"github.com/digitalocean/godo" // TODO
+	"github.com/juju/juju/api"
+	"github.com/juju/juju/api/application"
 	apiv1 "k8s.io/api/core/v1"
 
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
@@ -29,27 +28,16 @@ import (
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
-const ( // TODO
-	doksLabelNamespace = "doks.digitalocean.com"
-	nodeIDLabel        = doksLabelNamespace + "/node-id"
+const (
+	nodeIDLabel        = "juju/node-id"
 )
 
-var (
-	// ErrNodePoolNotExist is return if no node pool exists for a given cluster ID
-	ErrNodePoolNotExist = errors.New("node pool does not exist")
-)
-
-// NodeGroup implements cloudprovider.NodeGroup interface. NodeGroup contains
-// configuration info and functions to control a set of nodes that have the
-// same capacity and set of labels.
 type NodeGroup struct {
-	id        string
-	clusterID string
-	client    nodeGroupClient
-	nodePool  *godo.KubernetesNodePool // TODO
-
-	minSize int
-	maxSize int
+	id         string
+	minSize    int
+	maxSize    int
+	target     int
+	connection *api.Connection
 }
 
 // MaxSize returns maximum size of the node group.
@@ -62,13 +50,12 @@ func (n *NodeGroup) MinSize() int {
 	return n.minSize
 }
 
-// TargetSize returns the current target size of the node group. It is possible
-// that the number of nodes in Kubernetes is different at the moment but should
-// be equal to Size() once everything stabilizes (new nodes finish startup and
-// registration or removed nodes are deleted completely). Implementation
-// required.
+// TargetSize returns the current target size of the node group. It is possible that the
+// number of nodes in Kubernetes is different at the moment but should be equal
+// to Size() once everything stabilizes (new nodes finish startup and registration or
+// removed nodes are deleted completely). Implementation required.
 func (n *NodeGroup) TargetSize() (int, error) {
-	return n.nodePool.Count, nil
+	return n.target, nil
 }
 
 // IncreaseSize increases the size of the node group. To delete a node you need
@@ -79,57 +66,57 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 		return fmt.Errorf("delta must be positive, have: %d", delta)
 	}
 
-	targetSize := n.nodePool.Count + delta
+	targetSize := n.target + delta
 
 	if targetSize > n.MaxSize() {
 		return fmt.Errorf("size increase is too large. current: %d desired: %d max: %d",
-			n.nodePool.Count, targetSize, n.MaxSize())
+			n.target, targetSize, n.MaxSize())
 	}
 
-	req := &godo.KubernetesNodePoolUpdateRequest{
-		Count: &targetSize,
-	}
+	appClient := application.NewClient(*n.connection)
+	client := api.Client(*n.connection)
 
-	// TODO handle juju logic
-	ctx := context.Background()
-	updatedNodePool, _, err := n.client.UpdateNodePool(ctx, n.clusterID, n.id, req)
-	if err != nil {
-		return err
-	}
-
-	if updatedNodePool.Count != targetSize {
+	appClient.AddUnits(application.AddUnitsParams{
+		ApplicationName: "kubernetes-worker",
+		NumUnits:        delta,
+	})
+	//loop through and delay
+	client.Status([]string{"kubernetes-worker"})
+	if updatedCount != targetSize { // TODO check to see if the node group size actually increased
 		return fmt.Errorf("couldn't increase size to %d (delta: %d). Current size is: %d",
-			targetSize, delta, updatedNodePool.Count)
+			targetSize, delta, updatedCount)
 	}
 
 	// update internal cache
-	n.nodePool.Count = targetSize
+	n.target = targetSize
 	return nil
 }
 
-// DeleteNodes deletes nodes from this node group (and also increasing the size
-// of the node group with that). Error is returned either on failure or if the
-// given node doesn't belong to this node group. This function should wait
-// until node group size is updated. Implementation required.
+// DeleteNodes deletes nodes from this node group. Error is returned either on
+// failure or if the given node doesn't belong to this node group. This function
+// should wait until node group size is updated. Implementation required.
 func (n *NodeGroup) DeleteNodes(nodes []*apiv1.Node) error {
-	ctx := context.Background()
+	// ctx := context.Background()
 	for _, node := range nodes {
-		nodeID, ok := node.Labels[nodeIDLabel]
+		nodeID, ok := node.Labels[nodeIDLabel] //TODO create nodeID label
 		if !ok {
 			// CA creates fake node objects to represent upcoming VMs that
 			// haven't registered as nodes yet. We cannot delete the node at
 			// this point.
-			return fmt.Errorf("cannot delete node %q with provider ID %q on node pool %q: node ID label %q is missing", node.Name, node.Spec.ProviderID, n.id, nodeIDLabel)
+			return fmt.Errorf("cannot delete node %q on node pool %q: node ID label %q is missing", node.Name, n.id, nodeIDLabel)
 		}
 
-		_, err := n.client.DeleteNode(ctx, n.clusterID, n.id, nodeID, nil)
+		appClient := application.NewClient(*n.connection)
+		appClient.DestroyUnits(application.DestroyUnitsParams{
+			Units: []string{node}
+		})
 		if err != nil {
-			return fmt.Errorf("deleting node failed for cluster: %q node pool: %q node: %q: %s",
-				n.clusterID, n.id, nodeID, err)
+			return fmt.Errorf("deleting node failed for node pool: %q node: %q: %s",
+				n.id, nodeID, err)
 		}
 
 		// decrement the count by one  after a successful delete
-		n.nodePool.Count--
+		n.target--
 	}
 
 	return nil
@@ -145,29 +132,14 @@ func (n *NodeGroup) DecreaseTargetSize(delta int) error {
 		return fmt.Errorf("delta must be negative, have: %d", delta)
 	}
 
-	targetSize := n.nodePool.Count + delta
+	targetSize := n.target + delta
 	if targetSize < n.MinSize() {
 		return fmt.Errorf("size decrease is too small. current: %d desired: %d min: %d",
-			n.nodePool.Count, targetSize, n.MinSize())
-	}
-
-	req := &godo.KubernetesNodePoolUpdateRequest{
-		Count: &targetSize,
-	}
-
-	ctx := context.Background()
-	updatedNodePool, _, err := n.client.UpdateNodePool(ctx, n.clusterID, n.id, req)
-	if err != nil {
-		return err
-	}
-
-	if updatedNodePool.Count != targetSize {
-		return fmt.Errorf("couldn't increase size to %d (delta: %d). Current size is: %d",
-			targetSize, delta, updatedNodePool.Count)
+			n.target, targetSize, n.MinSize())
 	}
 
 	// update internal cache
-	n.nodePool.Count = targetSize
+	n.target = targetSize
 	return nil
 }
 
@@ -178,108 +150,61 @@ func (n *NodeGroup) Id() string {
 
 // Debug returns a string containing all information regarding this node group.
 func (n *NodeGroup) Debug() string {
-	return fmt.Sprintf("cluster ID: %s (min:%d max:%d)", n.Id(), n.MinSize(), n.MaxSize())
+	return fmt.Sprintf("cluster ID: %s (min:%d max:%d)", n.id, n.MinSize(), n.MaxSize())
 }
 
-// Nodes returns a list of all nodes that belong to this node group.  It is
-// required that Instance objects returned by this method have Id field set.
+// Nodes returns a list of all nodes that belong to this node group.
+// It is required that Instance objects returned by this method have Id field set.
 // Other fields are optional.
+// This list should include also instances that might have not become a kubernetes node yet.
 func (n *NodeGroup) Nodes() ([]cloudprovider.Instance, error) {
-	if n.nodePool == nil {
-		return nil, errors.New("node pool instance is not created")
-	}
+	// TODO RETURN NODES
+	nodes := make([]cloudprovider.Instance, 1)
+	// n.client.Status([]string{"kubernetes-worker"})
 
-	//TODO(arslan): after increasing a node pool, the number of nodes is not
-	//anymore equal to the cache here. We should return a placeholder node for
-	//that. As an example PR check this out:
-	//https://github.com/kubernetes/autoscaler/pull/2235
-	return toInstances(n.nodePool.Nodes), nil
+	// for len of nodes
+	// append instance to nodes
+
+	return nodes, nil
 }
 
 // TemplateNodeInfo returns a schedulerframework.NodeInfo structure of an empty
 // (as if just started) node. This will be used in scale-up simulations to
-// predict what would a new node look like if a node group was expanded. The
-// returned NodeInfo is expected to have a fully populated Node object, with
-// all of the labels, capacity and allocatable information as well as all pods
-// that are started on the node by default, using manifest (most likely only
-// kube-proxy). Implementation optional.
+// predict what would a new node look like if a node group was expanded. The returned
+// NodeInfo is expected to have a fully populated Node object, with all of the labels,
+// capacity and allocatable information as well as all pods that are started on
+// the node by default, using manifest (most likely only kube-proxy). Implementation optional.
 func (n *NodeGroup) TemplateNodeInfo() (*schedulerframework.NodeInfo, error) {
 	return nil, cloudprovider.ErrNotImplemented
 }
 
-// Exist checks if the node group really exists on the cloud provider side.
-// Allows to tell the theoretical node group from the real one. Implementation
-// required.
+// Exist checks if the node group really exists on the cloud provider side. Allows to tell the
+// theoretical node group from the real one. Implementation required.
 func (n *NodeGroup) Exist() bool {
-	return n.nodePool != nil
+	return true //TODO IMPLEMENT LOGIC
 }
 
-// Create creates the node group on the cloud provider side. Implementation
-// optional.
+// Create creates the node group on the cloud provider side. Implementation optional.
 func (n *NodeGroup) Create() (cloudprovider.NodeGroup, error) {
 	return nil, cloudprovider.ErrNotImplemented
 }
 
-// Delete deletes the node group on the cloud provider side.  This will be
-// executed only for autoprovisioned node groups, once their size drops to 0.
+// Delete deletes the node group on the cloud provider side.
+// This will be executed only for autoprovisioned node groups, once their size drops to 0.
 // Implementation optional.
 func (n *NodeGroup) Delete() error {
 	return cloudprovider.ErrNotImplemented
 }
 
-// Autoprovisioned returns true if the node group is autoprovisioned. An
-// autoprovisioned group was created by CA and can be deleted when scaled to 0.
+// Autoprovisioned returns true if the node group is autoprovisioned. An autoprovisioned group
+// was created by CA and can be deleted when scaled to 0.
 func (n *NodeGroup) Autoprovisioned() bool {
 	return false
 }
 
 // GetOptions returns NodeGroupAutoscalingOptions that should be used for this particular
 // NodeGroup. Returning a nil will result in using default options.
+// Implementation optional.
 func (n *NodeGroup) GetOptions(defaults config.NodeGroupAutoscalingOptions) (*config.NodeGroupAutoscalingOptions, error) {
 	return nil, cloudprovider.ErrNotImplemented
-}
-
-// toInstances converts a slice of *godo.KubernetesNode to
-// cloudprovider.Instance
-func toInstances(nodes []*godo.KubernetesNode) []cloudprovider.Instance {
-	instances := make([]cloudprovider.Instance, 0, len(nodes))
-	for _, nd := range nodes {
-		instances = append(instances, toInstance(nd))
-	}
-	return instances
-}
-
-// toInstance converts the given *godo.KubernetesNode to a
-// cloudprovider.Instance
-func toInstance(node *godo.KubernetesNode) cloudprovider.Instance {
-	return cloudprovider.Instance{
-		Id:     toProviderID(node.DropletID),
-		Status: toInstanceStatus(node.Status),
-	}
-}
-
-// toInstanceStatus converts the given *godo.KubernetesNodeStatus to a
-// cloudprovider.InstanceStatus
-func toInstanceStatus(nodeState *godo.KubernetesNodeStatus) *cloudprovider.InstanceStatus {
-	if nodeState == nil {
-		return nil
-	}
-
-	st := &cloudprovider.InstanceStatus{}
-	switch nodeState.State {
-	case "provisioning":
-		st.State = cloudprovider.InstanceCreating
-	case "running":
-		st.State = cloudprovider.InstanceRunning
-	case "draining", "deleting":
-		st.State = cloudprovider.InstanceDeleting
-	default:
-		st.ErrorInfo = &cloudprovider.InstanceErrorInfo{
-			ErrorClass:   cloudprovider.OtherErrorClass,
-			ErrorCode:    "no-code-digitalocean",
-			ErrorMessage: nodeState.Message,
-		}
-	}
-
-	return st
 }
