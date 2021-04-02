@@ -76,16 +76,24 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 	appClient := application.NewClient(*n.connection)
 	client := api.Client(*n.connection)
 
+	prevStatus, err := client.Status([]string{"kubernetes-worker"})
+
 	appClient.AddUnits(application.AddUnitsParams{
 		ApplicationName: "kubernetes-worker",
 		NumUnits:        delta,
 	})
-	//loop through and delay
-	client.Status([]string{"kubernetes-worker"})
-	if updatedCount != targetSize { // TODO check to see if the node group size actually increased
-		return fmt.Errorf("couldn't increase size to %d (delta: %d). Current size is: %d",
-			targetSize, delta, updatedCount)
+
+	for start := time.Now(); time.Since(start) < time.Minute; {
+		status, err := client.Status([]string{"kubernetes-worker"})
+		// if err != nil {
+			
+		// }
 	}
+
+	// if updatedCount != targetSize { // TODO check to see if the node group size actually increased
+	// 	return fmt.Errorf("couldn't increase size to %d (delta: %d). Current size is: %d",
+	// 		targetSize, delta, updatedCount)
+	// }
 
 	// update internal cache
 	n.target = targetSize
