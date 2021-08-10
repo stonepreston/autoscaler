@@ -155,7 +155,6 @@ func (m *Manager) refresh() error {
                 // patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
                 // output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
 
-                fmt.Printf("output: %s", output.ObjectMeta.Labels)
 
 				if err == nil {
 					unit.registered = true
