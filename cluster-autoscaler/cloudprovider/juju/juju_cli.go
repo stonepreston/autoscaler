@@ -42,7 +42,7 @@ func (m *Manager) init() error {
     
             var kubeconfig *string
             // TODO: find where the kubeconfig arg is passed
-            kubeconfig = "~/.kube/config"
+            kubeconfig = *"~/.kube/config"
 
             // use the current context in kubeconfig
             config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -56,7 +56,7 @@ func (m *Manager) init() error {
                 panic(err.Error())
             }
             // TODO: Test
-            _, err = clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+            _, err = clientset.NodeV1().Patch(context.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
 
             //			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
 			m.units[unitName] = &Unit{
@@ -152,7 +152,7 @@ func (m *Manager) refresh() error {
 			if unit.workload == "active" && !unit.registered {
 
                 // TODO: Test
-                output, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+                output, err := clientset.NodeV1().Patch(context.TODO(), unit.kubeName, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + unit.kubeName + `"}}`), v1.PatchOptions{})
 				//output, _ := exec.Command("kubectl", "patch", "node", unit.kubeName, "-p", `{"spec":{"providerID":"` + unit.kubeName + `"}}`).Output()
 				if string(output) == "node/" + unit.kubeName +" patched" {
 					unit.registered = true
