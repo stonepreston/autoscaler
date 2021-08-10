@@ -7,8 +7,8 @@ import (
 	"strings"
 	"strconv"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
-    "k8s.io/client-go/util/homedir"
     "k8s.io/apimachinery/pkg/types"
+    "k8s.io/client-go/kubernetes"
     v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
@@ -44,7 +44,7 @@ func (m *Manager) init() error {
             kubeconfig := "~/.kube/config"
 
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
             if err != nil {
                 panic(err.Error())
             }
@@ -137,7 +137,7 @@ func (m *Manager) refresh() error {
             // TODO: find where the kubeconfig arg is passed
             kubeconfig := "~/.kube/config"
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
             if err != nil {
                 panic(err.Error())
             }
