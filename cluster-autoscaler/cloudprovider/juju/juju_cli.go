@@ -150,7 +150,7 @@ func (m *Manager) refresh() error {
 			if unit.workload == "active" && !unit.registered {
 
                 // TODO: Test
-                output, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
+                _, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
                 // :output, err = clientset.NodeV1()..Get(context.TODO(), "pjds-focal-kvm", metav1.GetOptions{})
                 // patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
                 // output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
