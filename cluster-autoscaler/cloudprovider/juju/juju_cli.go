@@ -1,6 +1,7 @@
 package juju
 
 import (
+    "context"
 	"os"
 	"os/exec"
 	"strings"
@@ -9,6 +10,7 @@ import (
     "k8s.io/client-go/util/homedir"
     "k8s.io/apimachinery/pkg/types"
     v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
 )
 
@@ -37,21 +39,24 @@ func (m *Manager) init() error {
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
+    
             var kubeconfig *string
+            // TODO: find where the kubeconfig arg is passed
+            kubeconfig = "~/.kube/config"
 
-            if home := homedir.HomeDir(); home != "" {
-                    // TODO: How do we address kubeconfiguration?
-                    return nil
-            }
-
-            clientset, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-
+            // use the current context in kubeconfig
+            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
             if err != nil {
-                    panic(err.Error())
+                panic(err.Error())
             }
 
+            // create the clientset
+            clientset, err := kubernetes.NewForConfig(config)
+            if err != nil {
+                panic(err.Error())
+            }
             // TODO: Test
-            _, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+            _, err = clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
 
             //			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
 			m.units[unitName] = &Unit{
@@ -129,10 +134,25 @@ func (m *Manager) refresh() error {
 				}
 			}
 
+
+            var kubeconfig *string
+            // TODO: find where the kubeconfig arg is passed
+            kubeconfig = "~/.kube/config"
+            // use the current context in kubeconfig
+            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+            if err != nil {
+                panic(err.Error())
+            }
+
+            // create the clientset
+            clientset, err := kubernetes.NewForConfig(config)
+            if err != nil {
+                panic(err.Error())
+            }
 			if unit.workload == "active" && !unit.registered {
 
                 // TODO: Test
-                _, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+                output, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
 				//output, _ := exec.Command("kubectl", "patch", "node", unit.kubeName, "-p", `{"spec":{"providerID":"` + unit.kubeName + `"}}`).Output()
 				if string(output) == "node/" + unit.kubeName +" patched" {
 					unit.registered = true
