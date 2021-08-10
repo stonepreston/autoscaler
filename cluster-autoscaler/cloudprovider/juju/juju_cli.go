@@ -7,8 +7,8 @@ import (
 	"strings"
 	"strconv"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
-    "k8s.io/client-go/util/homedir"
     "k8s.io/apimachinery/pkg/types"
+    "k8s.io/client-go/kubernetes"
     v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
@@ -40,12 +40,11 @@ func (m *Manager) init() error {
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
     
-            var kubeconfig *string
             // TODO: find where the kubeconfig arg is passed
-            kubeconfig = *"~/.kube/config"
+            kubeconfig := "~/.kube/config"
 
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
             if err != nil {
                 panic(err.Error())
             }
@@ -56,7 +55,7 @@ func (m *Manager) init() error {
                 panic(err.Error())
             }
             // TODO: Test
-            _, err = clientset.NodeV1().Patch(context.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+            _, err = clientset.NodeV1().RuntimeClasses().Patch(context.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
 
             //			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
 			m.units[unitName] = &Unit{
@@ -135,11 +134,10 @@ func (m *Manager) refresh() error {
 			}
 
 
-            var kubeconfig *string
             // TODO: find where the kubeconfig arg is passed
-            kubeconfig = "~/.kube/config"
+            kubeconfig := "~/.kube/config"
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
             if err != nil {
                 panic(err.Error())
             }
@@ -152,9 +150,14 @@ func (m *Manager) refresh() error {
 			if unit.workload == "active" && !unit.registered {
 
                 // TODO: Test
-                output, err := clientset.NodeV1().Patch(context.TODO(), unit.kubeName, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + unit.kubeName + `"}}`), v1.PatchOptions{})
-				//output, _ := exec.Command("kubectl", "patch", "node", unit.kubeName, "-p", `{"spec":{"providerID":"` + unit.kubeName + `"}}`).Output()
-				if string(output) == "node/" + unit.kubeName +" patched" {
+                output, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
+                // :output, err = clientset.NodeV1()..Get(context.TODO(), "pjds-focal-kvm", metav1.GetOptions{})
+                // patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
+                // output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
+
+                fmt.Printf("output: %s", output.ObjectMeta.Labels)
+
+				if err == nil {
 					unit.registered = true
 					unit.state = cloudprovider.InstanceRunning
 					klog.Warningf(unit.kubeName + " registered.")
