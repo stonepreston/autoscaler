@@ -6,6 +6,9 @@ import (
 	"strings"
 	"strconv"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
+    "k8s.io/client-go/util/homedir"
+    "k8s.io/apimachinery/pkg/types"
+    v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	klog "k8s.io/klog/v2"
 )
 
@@ -33,7 +36,24 @@ func (m *Manager) init() error {
 			unitName := strings.Replace(info[0],"*", "", -1)
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
-			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
+            // POINT 1..,
+            var kubeconfig *string
+
+            if home := homedir.HomeDir(); home != "" {
+                    // TODO: How do we address kubeconfiguration?
+                    return nil
+            }
+
+            clientset, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+
+            if err != nil {
+                    panic(err.Error())
+            }
+
+            // TODO: Test
+            _, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+
+            //			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
 			m.units[unitName] = &Unit{
 				state:      cloudprovider.InstanceRunning,
 				jujuName:   unitName,
@@ -110,7 +130,10 @@ func (m *Manager) refresh() error {
 			}
 
 			if unit.workload == "active" && !unit.registered {
-				output, _ := exec.Command("kubectl", "patch", "node", unit.kubeName, "-p", `{"spec":{"providerID":"` + unit.kubeName + `"}}`).Output()
+
+                // TODO: Test
+                _, err := clientset.NodeV1().Patch(ctx.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+				//output, _ := exec.Command("kubectl", "patch", "node", unit.kubeName, "-p", `{"spec":{"providerID":"` + unit.kubeName + `"}}`).Output()
 				if string(output) == "node/" + unit.kubeName +" patched" {
 					unit.registered = true
 					unit.state = cloudprovider.InstanceRunning
