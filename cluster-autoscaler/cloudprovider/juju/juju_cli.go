@@ -40,9 +40,8 @@ func (m *Manager) init() error {
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
     
-            var kubeconfig *string
             // TODO: find where the kubeconfig arg is passed
-            kubeconfig = *"~/.kube/config"
+            kubeconfig := "~/.kube/config"
 
             // use the current context in kubeconfig
             config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
@@ -135,9 +134,8 @@ func (m *Manager) refresh() error {
 			}
 
 
-            var kubeconfig *string
             // TODO: find where the kubeconfig arg is passed
-            kubeconfig = "~/.kube/config"
+            kubeconfig := "~/.kube/config"
             // use the current context in kubeconfig
             config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
             if err != nil {
