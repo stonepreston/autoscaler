@@ -37,15 +37,22 @@ const (
 
 // jujuCloudProvider implements CloudProvider interface.
 type jujuCloudProvider struct {
+	config config.AutoscalingOptions
 	resourceLimiter *cloudprovider.ResourceLimiter
 	nodeGroup *NodeGroup
 }
 
-func newJujuCloudProvider(rl *cloudprovider.ResourceLimiter, nodeGroup *NodeGroup) (*jujuCloudProvider, error) { //TODO
+func newJujuCloudProvider(opts config.AutoscalingOptions, rl *cloudprovider.ResourceLimiter, nodeGroup *NodeGroup) (*jujuCloudProvider, error) { //TODO
 	return &jujuCloudProvider{
+		config: opts,
 		resourceLimiter: rl,
 		nodeGroup: nodeGroup,
 	}, nil
+}
+
+// Autoscaling options.
+func (j *jujuCloudProvider) Config() config.AutoscalingOptions {
+	return j.config
 }
 
 // Name returns name of the cloud provider.
@@ -140,6 +147,7 @@ func BuildJuju(
 
 	man := &Manager{
 		units:    make(map[string]*Unit),
+		config: opts,
 	}
 	man.init()
 
@@ -150,7 +158,7 @@ func BuildJuju(
 		target:     len(man.units),
 		manager:    man,
 	}
-	provider, err := newJujuCloudProvider(rl, ng)
+	provider, err := newJujuCloudProvider(opts, rl, ng)
 	if err != nil {
 		klog.Fatalf("Failed to create Juju cloud provider: %v", err)
 	}

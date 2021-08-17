@@ -1,16 +1,18 @@
 package juju
 
 import (
-    "context"
+	"context"
 	"os"
 	"os/exec"
-	"strings"
 	"strconv"
+	"strings"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
-    "k8s.io/apimachinery/pkg/types"
-    "k8s.io/client-go/kubernetes"
-    v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-    "k8s.io/client-go/tools/clientcmd"
+	"k8s.io/autoscaler/cluster-autoscaler/config"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
 )
 
@@ -25,6 +27,7 @@ type Unit struct {
 
 type Manager struct {
 	units      map[string]*Unit
+	config     config.AutoscalingOptions
 }
 
 func (m *Manager) init() error {
@@ -39,12 +42,9 @@ func (m *Manager) init() error {
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
-    
-            // TODO: find where the kubeconfig arg is passed
-            kubeconfig := "~/.kube/config"
 
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
             if err != nil {
                 panic(err.Error())
             }
@@ -134,10 +134,8 @@ func (m *Manager) refresh() error {
 			}
 
 
-            // TODO: find where the kubeconfig arg is passed
-            kubeconfig := "~/.kube/config"
             // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+            config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
             if err != nil {
                 panic(err.Error())
             }
