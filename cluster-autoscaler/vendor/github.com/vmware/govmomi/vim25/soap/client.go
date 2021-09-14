@@ -35,6 +35,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -70,6 +71,7 @@ type Client struct {
 
 	Namespace string // Vim namespace
 	Version   string // Vim version
+	Types     types.Func
 	UserAgent string
 
 	cookie string
@@ -122,6 +124,8 @@ func NewClient(u *url.URL, insecure bool) *Client {
 		u: u,
 		k: insecure,
 		d: newDebug(),
+
+		Types: types.TypeFunc(),
 	}
 
 	// Initialize http.RoundTripper on client, so we can customize it below
@@ -195,6 +199,19 @@ func (c *Client) NewServiceClient(path string, namespace string) *Client {
 	// Copy any query params (e.g. GOVMOMI_TUNNEL_PROXY_PORT used in testing)
 	client.u.RawQuery = vc.RawQuery
 
+	client.UserAgent = c.UserAgent
+
+	vimTypes := c.Types
+	client.Types = func(name string) (reflect.Type, bool) {
+		kind, ok := vimTypes(name)
+		if ok {
+			return kind, ok
+		}
+		// vim25/xml typeToString() does not have an option to include namespace prefix.
+		// Workaround this by re-trying the lookup with the namespace prefix.
+		return vimTypes(namespace + ":" + name)
+	}
+
 	return client
 }
 
@@ -207,7 +224,7 @@ func (c *Client) SetRootCAs(file string) error {
 	pool := x509.NewCertPool()
 
 	for _, name := range filepath.SplitList(file) {
-		pem, err := ioutil.ReadFile(name)
+		pem, err := ioutil.ReadFile(filepath.Clean(name))
 		if err != nil {
 			return err
 		}
@@ -277,7 +294,7 @@ func (c *Client) LoadThumbprints(file string) error {
 }
 
 func (c *Client) loadThumbprints(name string) error {
-	f, err := os.Open(name)
+	f, err := os.Open(filepath.Clean(name))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -346,7 +363,7 @@ func (c *Client) dialTLS(network string, addr string) (net.Conn, error) {
 	if thumbprint != peer {
 		_ = conn.Close()
 
-		return nil, fmt.Errorf("Host %q thumbprint does not match %q", addr, thumbprint)
+		return nil, fmt.Errorf("host %q thumbprint does not match %q", addr, thumbprint)
 	}
 
 	return conn, nil
@@ -424,6 +441,7 @@ type marshaledClient struct {
 	Cookies  []*http.Cookie
 	URL      *url.URL
 	Insecure bool
+	Version  string
 }
 
 func (c *Client) MarshalJSON() ([]byte, error) {
@@ -431,6 +449,7 @@ func (c *Client) MarshalJSON() ([]byte, error) {
 		Cookies:  c.Jar.Cookies(c.u),
 		URL:      c.u,
 		Insecure: c.k,
+		Version:  c.Version,
 	}
 
 	return json.Marshal(m)
@@ -445,6 +464,7 @@ func (c *Client) UnmarshalJSON(b []byte) error {
 	}
 
 	*c = *NewClient(m.URL, m.Insecure)
+	c.Version = m.Version
 	c.Jar.SetCookies(m.URL, m.Cookies)
 
 	return nil
@@ -466,8 +486,9 @@ func (c *Client) Do(ctx context.Context, req *http.Request, f func(*http.Respons
 		req.Header.Set(`User-Agent`, c.UserAgent)
 	}
 
+	ext := ""
 	if d.enabled() {
-		d.debugRequest(req)
+		ext = d.debugRequest(req)
 	}
 
 	tstart := time.Now()
@@ -491,7 +512,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, f func(*http.Respons
 	defer res.Body.Close()
 
 	if d.enabled() {
-		d.debugResponse(res)
+		d.debugResponse(res, ext)
 	}
 
 	return f(res)
@@ -570,7 +591,7 @@ func (c *Client) RoundTrip(ctx context.Context, reqBody, resBody HasFault) error
 		}
 
 		dec := xml.NewDecoder(res.Body)
-		dec.TypeFunc = types.TypeFunc()
+		dec.TypeFunc = c.Types
 		err = dec.Decode(&resEnv)
 		if err != nil {
 			return err
@@ -681,7 +702,7 @@ func (c *Client) UploadFile(ctx context.Context, file string, u *url.URL, param 
 		return err
 	}
 
-	f, err := os.Open(file)
+	f, err := os.Open(filepath.Clean(file))
 	if err != nil {
 		return err
 	}
@@ -734,7 +755,7 @@ func (c *Client) Download(ctx context.Context, u *url.URL, param *Download) (io.
 	switch res.StatusCode {
 	case http.StatusOK:
 	default:
-		err = errors.New(res.Status)
+		err = fmt.Errorf("download(%s): %s", u, res.Status)
 	}
 
 	if err != nil {

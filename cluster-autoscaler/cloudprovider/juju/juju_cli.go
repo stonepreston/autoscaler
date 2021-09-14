@@ -13,8 +13,7 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"github.com/juju/juju/cmd/juju/application/addunit"
-	"github.com/juju/juju/cmd/juju/application/status"
+	"github.com/juju/juju/cmd/juju/application"
 	klog "k8s.io/klog/v2"
 )
 
