@@ -13,6 +13,8 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"github.com/juju/juju/cmd/juju/application/addunit"
+	"github.com/juju/juju/cmd/juju/application/status"
 	klog "k8s.io/klog/v2"
 )
 
@@ -34,7 +36,12 @@ func (m *Manager) init() error {
 	var status []byte
 	var hostname string
 
-	status, _ = exec.Command("juju", "status", "kubernetes-worker").Output()
+	cmd, _ := status.NewStatusCommand()
+
+
+
+	
+	status, _ = cmd.Output() // exec.Command("juju", "status", "kubernetes-worker").Output()
 	for _, line := range strings.Split(string(status), "\n") {
 		if strings.Contains(line, "kubernetes-worker/") {
 			info := strings.Fields(line)
