@@ -76,7 +76,7 @@ func (m *Manager) init() error {
 			patterns := make([]string, 1)
 			patterns[0] = "kubernetes-master"
 			status, err := rootClient.Status(patterns)
-			klog.Infof(status.Applications)
+			klog.Infof("Applications %s", status.Applications)
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
