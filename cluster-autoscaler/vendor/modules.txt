@@ -79,8 +79,6 @@ github.com/PuerkitoBio/purell
 github.com/PuerkitoBio/urlesc
 # github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e
 github.com/armon/circbuf
-# github.com/armon/go-metrics v0.3.3
-github.com/armon/go-metrics
 # github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 github.com/asaskevich/govalidator
 # github.com/aws/aws-sdk-go v1.38.67
@@ -184,10 +182,7 @@ github.com/coreos/go-semver/semver
 # github.com/coreos/go-systemd/v22 v22.3.2
 github.com/coreos/go-systemd/v22/daemon
 github.com/coreos/go-systemd/v22/dbus
-github.com/coreos/go-systemd/v22/internal/dlopen
 github.com/coreos/go-systemd/v22/journal
-github.com/coreos/go-systemd/v22/unit
-github.com/coreos/go-systemd/v22/util
 # github.com/cyphar/filepath-securejoin v0.2.2
 github.com/cyphar/filepath-securejoin
 # github.com/davecgh/go-spew v1.1.1
@@ -227,8 +222,6 @@ github.com/docker/go-connections/sockets
 github.com/docker/go-connections/tlsconfig
 # github.com/docker/go-units v0.4.0
 github.com/docker/go-units
-# github.com/dustin/go-humanize v1.0.0
-github.com/dustin/go-humanize
 # github.com/emicklei/go-restful v2.9.5+incompatible
 github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
@@ -250,10 +243,7 @@ github.com/go-logr/logr
 # github.com/go-macaroon-bakery/macaroon-bakery/v3 v3.0.0-20210309064400-d73aa8f92aa2
 github.com/go-macaroon-bakery/macaroon-bakery/v3/bakery
 github.com/go-macaroon-bakery/macaroon-bakery/v3/bakery/checkers
-github.com/go-macaroon-bakery/macaroon-bakery/v3/bakery/dbrootkeystore
-github.com/go-macaroon-bakery/macaroon-bakery/v3/bakery/mgorootkeystore
 github.com/go-macaroon-bakery/macaroon-bakery/v3/httpbakery
-github.com/go-macaroon-bakery/macaroon-bakery/v3/httpbakery/form
 github.com/go-macaroon-bakery/macaroon-bakery/v3/internal/httputil
 # github.com/go-macaroon-bakery/macaroonpb v1.0.0
 github.com/go-macaroon-bakery/macaroonpb
@@ -404,22 +394,10 @@ github.com/grpc-ecosystem/go-grpc-prometheus
 github.com/grpc-ecosystem/grpc-gateway/internal
 github.com/grpc-ecosystem/grpc-gateway/runtime
 github.com/grpc-ecosystem/grpc-gateway/utilities
-# github.com/hashicorp/go-hclog v0.9.1
-github.com/hashicorp/go-hclog
-# github.com/hashicorp/go-immutable-radix v1.3.0
-github.com/hashicorp/go-immutable-radix
-# github.com/hashicorp/go-msgpack v0.5.5
-github.com/hashicorp/go-msgpack/codec
-# github.com/hashicorp/golang-lru v0.5.4
-github.com/hashicorp/golang-lru/simplelru
-# github.com/hashicorp/raft v1.3.2-0.20210825230038-1a621031eb2b
-github.com/hashicorp/raft
 # github.com/heketi/heketi v10.3.0+incompatible
 github.com/heketi/heketi/client/api/go-client
 github.com/heketi/heketi/pkg/glusterfs/api
 github.com/heketi/heketi/pkg/utils
-# github.com/im7mortal/kmutex v1.0.1
-github.com/im7mortal/kmutex
 # github.com/imdario/mergo v0.3.10
 github.com/imdario/mergo
 # github.com/inconshreveable/mousetrap v1.0.0
@@ -435,27 +413,20 @@ github.com/json-iterator/go
 # github.com/juju/ansiterm v0.0.0-20210706145210-9283cdf370b5
 github.com/juju/ansiterm
 github.com/juju/ansiterm/tabwriter
-# github.com/juju/blobstore/v2 v2.0.0-20210302045357-edd2b24570b7
-github.com/juju/blobstore/v2
 # github.com/juju/charm/v9 v9.0.0-20210909151651-7e12eccc1e76
 github.com/juju/charm/v9
 github.com/juju/charm/v9/hooks
 github.com/juju/charm/v9/resource
 # github.com/juju/charmrepo/v7 v7.0.0-20210901102801-513fb9274dae
-github.com/juju/charmrepo/v7
 github.com/juju/charmrepo/v7/csclient
 github.com/juju/charmrepo/v7/csclient/params
 # github.com/juju/clock v0.0.0-20190205081909-9c5c9712527c
 github.com/juju/clock
 # github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9
+## explicit
 github.com/juju/cmd
-# github.com/juju/cmd/v3 v3.0.0-20210809234809-65029dab4cd0
-github.com/juju/cmd/v3
 # github.com/juju/collections v0.0.0-20200605021417-0d0ec82b7271
-github.com/juju/collections/deque
 github.com/juju/collections/set
-# github.com/juju/description/v3 v3.0.0-20210709162012-5f861fa82eab
-github.com/juju/description/v3
 # github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
 github.com/juju/errors
 # github.com/juju/featureflag v0.0.0-20200423045028-e2f9e1cb1611
@@ -476,243 +447,90 @@ github.com/juju/http/v2
 github.com/juju/httpprof
 # github.com/juju/idmclient/v2 v2.0.0-20210309081103-6b4a5212f851
 github.com/juju/idmclient/v2/ussologin
-# github.com/juju/jsonschema v0.0.0-20210422141032-b0ff291abe9c
-github.com/juju/jsonschema
 # github.com/juju/juju v0.0.0-20210917052828-8abb365c61af
 ## explicit
-github.com/juju/juju/agent
-github.com/juju/juju/agent/tools
 github.com/juju/juju/api
-github.com/juju/juju/api/annotations
 github.com/juju/juju/api/application
-github.com/juju/juju/api/applicationoffers
-github.com/juju/juju/api/authentication
 github.com/juju/juju/api/base
-github.com/juju/juju/api/block
-github.com/juju/juju/api/charms
 github.com/juju/juju/api/common
 github.com/juju/juju/api/common/charm
-github.com/juju/juju/api/common/charms
-github.com/juju/juju/api/common/cloudspec
-github.com/juju/juju/api/controller
 github.com/juju/juju/api/instancepoller
 github.com/juju/juju/api/keyupdater
-github.com/juju/juju/api/modelconfig
-github.com/juju/juju/api/modelmanager
 github.com/juju/juju/api/reboot
-github.com/juju/juju/api/resources
-github.com/juju/juju/api/resources/client
-github.com/juju/juju/api/secretsmanager
-github.com/juju/juju/api/spaces
-github.com/juju/juju/api/storage
 github.com/juju/juju/api/unitassigner
 github.com/juju/juju/api/uniter
 github.com/juju/juju/api/upgrader
-github.com/juju/juju/api/usermanager
 github.com/juju/juju/api/watcher
-github.com/juju/juju/apiserver/common
-github.com/juju/juju/apiserver/common/charms
-github.com/juju/juju/apiserver/common/storagecommon
-github.com/juju/juju/apiserver/errors
-github.com/juju/juju/apiserver/facade
-github.com/juju/juju/apiserver/facades/agent/metricsender
-github.com/juju/juju/apiserver/facades/client/application
-github.com/juju/juju/apiserver/facades/controller/caasoperatorprovisioner
 github.com/juju/juju/apiserver/params
-github.com/juju/juju/caas
 github.com/juju/juju/caas/kubernetes
-github.com/juju/juju/caas/kubernetes/clientconfig
-github.com/juju/juju/caas/kubernetes/cloud
 github.com/juju/juju/caas/kubernetes/pod
-github.com/juju/juju/caas/kubernetes/provider
-github.com/juju/juju/caas/kubernetes/provider/application
-github.com/juju/juju/caas/kubernetes/provider/constants
 github.com/juju/juju/caas/kubernetes/provider/proxy
-github.com/juju/juju/caas/kubernetes/provider/resources
-github.com/juju/juju/caas/kubernetes/provider/scale
-github.com/juju/juju/caas/kubernetes/provider/specs
-github.com/juju/juju/caas/kubernetes/provider/storage
-github.com/juju/juju/caas/kubernetes/provider/utils
-github.com/juju/juju/caas/kubernetes/provider/watcher
-github.com/juju/juju/caas/specs
 github.com/juju/juju/charmhub
 github.com/juju/juju/charmhub/path
 github.com/juju/juju/charmhub/transport
 github.com/juju/juju/charmstore
 github.com/juju/juju/cloud
-github.com/juju/juju/cloudconfig
-github.com/juju/juju/cloudconfig/cloudinit
-github.com/juju/juju/cloudconfig/instancecfg
-github.com/juju/juju/cloudconfig/podcfg
-github.com/juju/juju/cmd
-github.com/juju/juju/cmd/juju/application
-github.com/juju/juju/cmd/juju/application/bundle
-github.com/juju/juju/cmd/juju/application/deployer
-github.com/juju/juju/cmd/juju/application/refresher
-github.com/juju/juju/cmd/juju/application/store
-github.com/juju/juju/cmd/juju/application/utils
-github.com/juju/juju/cmd/juju/block
-github.com/juju/juju/cmd/juju/common
-github.com/juju/juju/cmd/juju/interact
-github.com/juju/juju/cmd/juju/resource
-github.com/juju/juju/cmd/modelcmd
-github.com/juju/juju/cmd/output
 github.com/juju/juju/controller
-github.com/juju/juju/core/actions
-github.com/juju/juju/core/annotations
 github.com/juju/juju/core/application
-github.com/juju/juju/core/arch
-github.com/juju/juju/core/bundle/changes
-github.com/juju/juju/core/cache
 github.com/juju/juju/core/charm
 github.com/juju/juju/core/constraints
-github.com/juju/juju/core/container
-github.com/juju/juju/core/context
-github.com/juju/juju/core/controller
 github.com/juju/juju/core/crossmodel
 github.com/juju/juju/core/devices
-github.com/juju/juju/core/globalclock
 github.com/juju/juju/core/instance
-github.com/juju/juju/core/leadership
-github.com/juju/juju/core/lease
 github.com/juju/juju/core/life
 github.com/juju/juju/core/logger
 github.com/juju/juju/core/lxdprofile
-github.com/juju/juju/core/machinelock
 github.com/juju/juju/core/migration
 github.com/juju/juju/core/model
-github.com/juju/juju/core/multiwatcher
 github.com/juju/juju/core/network
-github.com/juju/juju/core/network/firewall
 github.com/juju/juju/core/os
 github.com/juju/juju/core/paths
 github.com/juju/juju/core/permission
-github.com/juju/juju/core/presence
-github.com/juju/juju/core/quota
-github.com/juju/juju/core/raftlease
 github.com/juju/juju/core/relation
-github.com/juju/juju/core/resources
 github.com/juju/juju/core/secrets
 github.com/juju/juju/core/series
-github.com/juju/juju/core/settings
-github.com/juju/juju/core/snap
 github.com/juju/juju/core/status
 github.com/juju/juju/core/watcher
 github.com/juju/juju/docker
 github.com/juju/juju/docker/registry
 github.com/juju/juju/downloader
-github.com/juju/juju/environs
-github.com/juju/juju/environs/bootstrap
-github.com/juju/juju/environs/cloudspec
 github.com/juju/juju/environs/config
 github.com/juju/juju/environs/context
-github.com/juju/juju/environs/dashboard
-github.com/juju/juju/environs/filestorage
-github.com/juju/juju/environs/imagemetadata
-github.com/juju/juju/environs/instances
-github.com/juju/juju/environs/simplestreams
-github.com/juju/juju/environs/storage
-github.com/juju/juju/environs/sync
 github.com/juju/juju/environs/tags
-github.com/juju/juju/environs/tools
-github.com/juju/juju/environs/utils
 github.com/juju/juju/feature
 github.com/juju/juju/juju
-github.com/juju/juju/juju/keys
-github.com/juju/juju/juju/names
 github.com/juju/juju/juju/osenv
-github.com/juju/juju/juju/sockets
 github.com/juju/juju/jujuclient
 github.com/juju/juju/logfwd
 github.com/juju/juju/logfwd/syslog
-github.com/juju/juju/mongo
-github.com/juju/juju/mongo/utils
-github.com/juju/juju/network
-github.com/juju/juju/network/debinterfaces
-github.com/juju/juju/network/netplan
-github.com/juju/juju/packaging
-github.com/juju/juju/packaging/dependency
-github.com/juju/juju/payload
 github.com/juju/juju/pki
 github.com/juju/juju/provider/lxd/lxdnames
 github.com/juju/juju/proxy
 github.com/juju/juju/resource
-github.com/juju/juju/resource/repositories
-github.com/juju/juju/resource/resourceadapters
 github.com/juju/juju/rpc
 github.com/juju/juju/rpc/jsoncodec
-github.com/juju/juju/service
-github.com/juju/juju/service/common
-github.com/juju/juju/service/snap
-github.com/juju/juju/service/systemd
-github.com/juju/juju/service/upstart
-github.com/juju/juju/service/windows
-github.com/juju/juju/state
-github.com/juju/juju/state/bakerystorage
-github.com/juju/juju/state/binarystorage
-github.com/juju/juju/state/cloudimagemetadata
-github.com/juju/juju/state/errors
-github.com/juju/juju/state/globalclock
-github.com/juju/juju/state/imagestorage
-github.com/juju/juju/state/migrations
-github.com/juju/juju/state/raftlease
-github.com/juju/juju/state/stateenvirons
-github.com/juju/juju/state/storage
-github.com/juju/juju/state/upgrade
-github.com/juju/juju/state/watcher
 github.com/juju/juju/storage
-github.com/juju/juju/storage/poolmanager
-github.com/juju/juju/storage/provider
 github.com/juju/juju/tools
 github.com/juju/juju/utils/proxy
-github.com/juju/juju/utils/scriptrunner
 github.com/juju/juju/version
 github.com/juju/juju/worker
-github.com/juju/juju/worker/common/charmrunner
-github.com/juju/juju/worker/uniter/charm
-github.com/juju/juju/worker/uniter/hook
-github.com/juju/juju/worker/uniter/operation
-github.com/juju/juju/worker/uniter/remotestate
-github.com/juju/juju/worker/uniter/runner
-github.com/juju/juju/worker/uniter/runner/context
-github.com/juju/juju/worker/uniter/runner/debug
-github.com/juju/juju/worker/uniter/runner/jujuc
-github.com/juju/juju/wrench
 # github.com/juju/loggo v0.0.0-20210728185423-eebad3a902c4
 github.com/juju/loggo
 github.com/juju/loggo/loggocolor
-# github.com/juju/lru v0.0.0-20190314140547-92a0afabdc41
-github.com/juju/lru
 # github.com/juju/mgo/v2 v2.0.0-20210414025616-e854c672032f
-github.com/juju/mgo/v2
 github.com/juju/mgo/v2/bson
 github.com/juju/mgo/v2/internal/json
-github.com/juju/mgo/v2/internal/sasl
-github.com/juju/mgo/v2/internal/scram
-github.com/juju/mgo/v2/sstxn
-github.com/juju/mgo/v2/txn
 # github.com/juju/mutex v0.0.0-20180619145857-d21b13acf4bf
 github.com/juju/mutex
 # github.com/juju/names/v4 v4.0.0-20200929085019-be23e191fee0
 github.com/juju/names/v4
-# github.com/juju/naturalsort v0.0.0-20180423034842-5b81707e882b
-github.com/juju/naturalsort
 # github.com/juju/os/v2 v2.1.2
 github.com/juju/os/v2
 github.com/juju/os/v2/series
-# github.com/juju/packaging/v2 v2.0.0-20210628104420-5487e24f1350
-github.com/juju/packaging/v2
-github.com/juju/packaging/v2/commands
-github.com/juju/packaging/v2/config
-github.com/juju/packaging/v2/manager
 # github.com/juju/persistent-cookiejar v0.0.0-20170428161559-d67418f14c93
 github.com/juju/persistent-cookiejar
 # github.com/juju/proxy v0.0.0-20210817195502-c6015cfe0258
 github.com/juju/proxy
-# github.com/juju/pubsub/v2 v2.0.0-20210804115646-050d38a80f5b
-github.com/juju/pubsub/v2
-# github.com/juju/replicaset/v2 v2.0.0-20210310024806-bbbdc5f31eb3
-github.com/juju/replicaset/v2
 # github.com/juju/retry v0.0.0-20210818141810-5526f6f6ff07
 github.com/juju/retry
 # github.com/juju/rfc/v2 v2.0.0-20210319034215-ed820200fad3
@@ -720,33 +538,24 @@ github.com/juju/rfc/v2/rfc5424
 github.com/juju/rfc/v2/rfc5424/sdelements
 # github.com/juju/romulus v0.0.0-20210309074704-4fa3bbd32568
 github.com/juju/romulus
-github.com/juju/romulus/wireformat/metrics
 # github.com/juju/rpcreflect v0.0.0-20200416001309-bb46e9ba1476
 github.com/juju/rpcreflect
 # github.com/juju/schema v1.0.1-0.20190814234152-1f8aaeef0989
 github.com/juju/schema
-# github.com/juju/txn v0.0.0-20210302043154-251cea9e140a
-github.com/juju/txn
-# github.com/juju/txn/v2 v2.0.0-20210407000251-11166e89894c
-github.com/juju/txn/v2
 # github.com/juju/usso v1.0.1
 github.com/juju/usso
 # github.com/juju/utils v0.0.0-20200604140309-9d78121a29e0
 github.com/juju/utils
-github.com/juju/utils/arch
 github.com/juju/utils/debugstatus
 # github.com/juju/utils/v2 v2.0.0-20210305225158-eedbe7b6b3e2
 github.com/juju/utils/v2
 github.com/juju/utils/v2/arch
 github.com/juju/utils/v2/cert
 github.com/juju/utils/v2/exec
-github.com/juju/utils/v2/filepath
 github.com/juju/utils/v2/hash
 github.com/juju/utils/v2/keyvalues
 github.com/juju/utils/v2/parallel
-github.com/juju/utils/v2/shell
 github.com/juju/utils/v2/ssh
-github.com/juju/utils/v2/symlink
 github.com/juju/utils/v2/zip
 # github.com/juju/version/v2 v2.0.0-20210319015800-dcfac8f4f057
 github.com/juju/version/v2
@@ -759,27 +568,10 @@ github.com/juju/worker/v2/catacomb
 github.com/julienschmidt/httprouter
 # github.com/karrick/godirwalk v1.16.1
 github.com/karrick/godirwalk
-# github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-github.com/kballard/go-shellquote
 # github.com/kr/pretty v0.2.1
 github.com/kr/pretty
 # github.com/kr/text v0.2.0
 github.com/kr/text
-# github.com/lestrrat/go-jspointer v0.0.0-20160229021354-f4881e611bdb
-github.com/lestrrat/go-jspointer
-# github.com/lestrrat/go-jsref v0.0.0-20160601013240-e452c7b5801d
-github.com/lestrrat/go-jsref
-github.com/lestrrat/go-jsref/provider
-# github.com/lestrrat/go-jsschema v0.0.0-20160903131957-b09d7650b822
-github.com/lestrrat/go-jsschema
-github.com/lestrrat/go-jsschema/validator
-# github.com/lestrrat/go-jsval v0.0.0-20161012045717-b1258a10419f
-github.com/lestrrat/go-jsval
-github.com/lestrrat/go-jsval/builder
-# github.com/lestrrat/go-pdebug v0.0.0-20160817063333-2e6eaaa5717f
-github.com/lestrrat/go-pdebug
-# github.com/lestrrat/go-structinfo v0.0.0-20160308131105-f74c056fe41f
-github.com/lestrrat/go-structinfo
 # github.com/libopenstorage/openstorage v1.0.0
 github.com/libopenstorage/openstorage/api
 github.com/libopenstorage/openstorage/api/client
@@ -792,8 +584,6 @@ github.com/libopenstorage/openstorage/volume
 github.com/lithammer/dedent
 # github.com/lunixbochs/vtclean v1.0.0
 github.com/lunixbochs/vtclean
-# github.com/lxc/lxd v0.0.0-20210607205159-a7c206b5233d
-github.com/lxc/lxd/shared/logger
 # github.com/mailru/easyjson v0.7.6
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
@@ -1068,11 +858,8 @@ go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
 # golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 ## explicit
-golang.org/x/crypto/acme
-golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
-golang.org/x/crypto/cast5
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
@@ -1083,13 +870,6 @@ golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/nacl/box
 golang.org/x/crypto/nacl/secretbox
-golang.org/x/crypto/openpgp
-golang.org/x/crypto/openpgp/armor
-golang.org/x/crypto/openpgp/clearsign
-golang.org/x/crypto/openpgp/elgamal
-golang.org/x/crypto/openpgp/errors
-golang.org/x/crypto/openpgp/packet
-golang.org/x/crypto/openpgp/s2k
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
@@ -1123,7 +903,6 @@ golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-golang.org/x/sync/errgroup
 golang.org/x/sync/singleflight
 # golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e
 golang.org/x/sys/cpu
@@ -1133,7 +912,6 @@ golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
 golang.org/x/sys/windows/svc
-golang.org/x/sys/windows/svc/mgr
 # golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 golang.org/x/term
 # golang.org/x/text v0.3.6
@@ -1295,8 +1073,6 @@ gopkg.in/mgo.v2/internal/sasl
 gopkg.in/mgo.v2/internal/scram
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 gopkg.in/natefinch/lumberjack.v2
-# gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
-gopkg.in/natefinch/npipe.v2
 # gopkg.in/retry.v1 v1.0.3
 gopkg.in/retry.v1
 # gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
@@ -1357,14 +1133,6 @@ k8s.io/api/scheduling/v1beta1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apiextensions-apiserver v0.19.6 => k8s.io/apiextensions-apiserver v0.23.0-alpha.0
-k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
-k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
-k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1
-k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
-k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
-k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
-k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
 # k8s.io/apimachinery v0.23.0-alpha.0 => k8s.io/apimachinery v0.23.0-alpha.0
 ## explicit
 k8s.io/apimachinery/pkg/api/equality
@@ -1799,7 +1567,6 @@ k8s.io/client-go/pkg/apis/clientauthentication/v1alpha1
 k8s.io/client-go/pkg/apis/clientauthentication/v1beta1
 k8s.io/client-go/pkg/version
 k8s.io/client-go/plugin/pkg/client/auth/exec
-k8s.io/client-go/plugin/pkg/client/auth/gcp
 k8s.io/client-go/rest
 k8s.io/client-go/rest/fake
 k8s.io/client-go/rest/watch
@@ -1814,7 +1581,6 @@ k8s.io/client-go/scale/scheme/autoscalingv1
 k8s.io/client-go/scale/scheme/extensionsint
 k8s.io/client-go/scale/scheme/extensionsv1beta1
 k8s.io/client-go/testing
-k8s.io/client-go/third_party/forked/golang/template
 k8s.io/client-go/tools/auth
 k8s.io/client-go/tools/cache
 k8s.io/client-go/tools/clientcmd
@@ -1841,7 +1607,6 @@ k8s.io/client-go/util/connrotation
 k8s.io/client-go/util/exec
 k8s.io/client-go/util/flowcontrol
 k8s.io/client-go/util/homedir
-k8s.io/client-go/util/jsonpath
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue

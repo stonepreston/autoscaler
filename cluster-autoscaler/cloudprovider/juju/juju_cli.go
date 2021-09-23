@@ -7,13 +7,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/juju/juju/api"
+	"github.com/juju/juju/api/application"
+	"github.com/juju/juju/juju"
+	"github.com/juju/juju/jujuclient"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"github.com/juju/juju/cmd/juju/application"
 	klog "k8s.io/klog/v2"
 )
 
@@ -31,20 +34,46 @@ type Manager struct {
 	config     config.AutoscalingOptions
 }
 
+func (m *Manager) getRoot() api.Connection {
+
+	params := juju.NewAPIConnectionParams{
+		ControllerName: "test",
+		Store: jujuclient.NewFileClientStore(),
+		OpenAPI: nil,
+		DialOpts: api.DialOpts{},
+		AccountDetails: &jujuclient.AccountDetails{},
+		ModelUUID: "",
+	}
+
+	conn, err := juju.NewAPIConnection(params)
+	if err != nil {
+		panic("Error getting Juju API")
+	}
+
+	return conn
+
+}
+
 func (m *Manager) init() error {
 	var status []byte
 	var hostname string
+    // TODO: Application root fetch.
+	root := m.getRoot()
+	client := application.NewClient(root)
+	rootClient := api.Client()
 
-	cmd, _ := status.NewStatusCommand()
 
 
+	if client != nil {
+		panic("Created juju client")
+	}
 
-	
-	status, _ = cmd.Output() // exec.Command("juju", "status", "kubernetes-worker").Output()
 	for _, line := range strings.Split(string(status), "\n") {
 		if strings.Contains(line, "kubernetes-worker/") {
 			info := strings.Fields(line)
 			unitName := strings.Replace(info[0],"*", "", -1)
+			status := rootClient.Status()
+			klog.Infof(status)
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,
