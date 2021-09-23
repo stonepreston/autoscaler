@@ -60,7 +60,8 @@ func (m *Manager) init() error {
     // TODO: Application root fetch.
 	root := m.getRoot()
 	client := application.NewClient(root)
-	rootClient := api.Client()
+	rootClient := root.Client()
+
 
 
 
@@ -72,8 +73,10 @@ func (m *Manager) init() error {
 		if strings.Contains(line, "kubernetes-worker/") {
 			info := strings.Fields(line)
 			unitName := strings.Replace(info[0],"*", "", -1)
-			status := rootClient.Status()
-			klog.Infof(status)
+			patterns := make([]string, 1)
+			patterns[0] = "kubernetes-master"
+			status, err := rootClient.Status(patterns)
+			klog.Infof(status.Applications)
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
             // POINT 1..,

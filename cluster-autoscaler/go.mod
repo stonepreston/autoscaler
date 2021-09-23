@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/json-iterator/go v1.1.11
-	github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9
+	github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9 // indirect
 	github.com/juju/juju v0.0.0-20210917052828-8abb365c61af
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
