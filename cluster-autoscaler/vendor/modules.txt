@@ -81,7 +81,7 @@ github.com/PuerkitoBio/urlesc
 github.com/armon/circbuf
 # github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 github.com/asaskevich/govalidator
-# github.com/aws/aws-sdk-go v1.38.67
+# github.com/aws/aws-sdk-go v1.40.46
 ## explicit
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
@@ -333,7 +333,7 @@ github.com/google/cadvisor/utils/sysinfo
 github.com/google/cadvisor/version
 github.com/google/cadvisor/watcher
 github.com/google/cadvisor/zfs
-# github.com/google/go-cmp v0.5.5
+# github.com/google/go-cmp v0.5.6
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/cmpopts
 github.com/google/go-cmp/cmp/internal/diff
@@ -413,11 +413,11 @@ github.com/json-iterator/go
 # github.com/juju/ansiterm v0.0.0-20210706145210-9283cdf370b5
 github.com/juju/ansiterm
 github.com/juju/ansiterm/tabwriter
-# github.com/juju/charm/v9 v9.0.0-20210909151651-7e12eccc1e76
+# github.com/juju/charm/v9 v9.0.0-20210922083844-6bd7c961dbc6
 github.com/juju/charm/v9
 github.com/juju/charm/v9/hooks
 github.com/juju/charm/v9/resource
-# github.com/juju/charmrepo/v7 v7.0.0-20210901102801-513fb9274dae
+# github.com/juju/charmrepo/v7 v7.0.0-20210923152136-0ae2f26643bf
 github.com/juju/charmrepo/v7/csclient
 github.com/juju/charmrepo/v7/csclient/params
 # github.com/juju/clock v0.0.0-20190205081909-9c5c9712527c
@@ -443,11 +443,9 @@ github.com/juju/gojsonreference
 github.com/juju/gojsonschema
 # github.com/juju/http/v2 v2.0.0-20210623153641-418e83b0dab4
 github.com/juju/http/v2
-# github.com/juju/httpprof v0.0.0-20141217160036-14bf14c30767
-github.com/juju/httpprof
 # github.com/juju/idmclient/v2 v2.0.0-20210309081103-6b4a5212f851
 github.com/juju/idmclient/v2/ussologin
-# github.com/juju/juju v0.0.0-20210917052828-8abb365c61af
+# github.com/juju/juju v0.0.0-20211001142224-cd69c141f7c8
 ## explicit
 github.com/juju/juju/api
 github.com/juju/juju/api/application
@@ -473,6 +471,7 @@ github.com/juju/juju/cloud
 github.com/juju/juju/controller
 github.com/juju/juju/core/application
 github.com/juju/juju/core/charm
+github.com/juju/juju/core/charm/metrics
 github.com/juju/juju/core/constraints
 github.com/juju/juju/core/crossmodel
 github.com/juju/juju/core/devices
@@ -493,6 +492,9 @@ github.com/juju/juju/core/status
 github.com/juju/juju/core/watcher
 github.com/juju/juju/docker
 github.com/juju/juju/docker/registry
+github.com/juju/juju/docker/registry/image
+github.com/juju/juju/docker/registry/internal
+github.com/juju/juju/docker/registry/utils
 github.com/juju/juju/downloader
 github.com/juju/juju/environs/config
 github.com/juju/juju/environs/context
@@ -546,7 +548,6 @@ github.com/juju/schema
 github.com/juju/usso
 # github.com/juju/utils v0.0.0-20200604140309-9d78121a29e0
 github.com/juju/utils
-github.com/juju/utils/debugstatus
 # github.com/juju/utils/v2 v2.0.0-20210305225158-eedbe7b6b3e2
 github.com/juju/utils/v2
 github.com/juju/utils/v2/arch
@@ -856,7 +857,7 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 go.uber.org/zap/zapgrpc
-# golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
+# golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 ## explicit
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
@@ -867,19 +868,19 @@ golang.org/x/crypto/curve25519
 golang.org/x/crypto/curve25519/internal/field
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
+golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/nacl/box
 golang.org/x/crypto/nacl/secretbox
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
-golang.org/x/crypto/poly1305
 golang.org/x/crypto/salsa20/salsa
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 golang.org/x/crypto/ssh/knownhosts
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
+# golang.org/x/net v0.0.0-20210917221730-978cfadd31cf
 golang.org/x/net/bpf
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
@@ -904,7 +905,7 @@ golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e
+# golang.org/x/sys v0.0.0-20210921065528-437939a70204
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
@@ -1065,12 +1066,6 @@ gopkg.in/juju/environschema.v1
 gopkg.in/juju/environschema.v1/form
 # gopkg.in/macaroon.v2 v2.1.0
 gopkg.in/macaroon.v2
-# gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
-gopkg.in/mgo.v2
-gopkg.in/mgo.v2/bson
-gopkg.in/mgo.v2/internal/json
-gopkg.in/mgo.v2/internal/sasl
-gopkg.in/mgo.v2/internal/scram
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 gopkg.in/natefinch/lumberjack.v2
 # gopkg.in/retry.v1 v1.0.3
