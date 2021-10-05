@@ -7,8 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/juju/errors"
 	"github.com/juju/juju/api"
 	"github.com/juju/juju/api/application"
+	"github.com/juju/juju/cmd/modelcmd"
 	"github.com/juju/juju/juju"
 	"github.com/juju/juju/jujuclient"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,19 +32,19 @@ type Unit struct {
 }
 
 type Manager struct {
-	units      map[string]*Unit
-	config     config.AutoscalingOptions
+	units  map[string]*Unit
+	config config.AutoscalingOptions
 }
 
 func (m *Manager) getRoot() api.Connection {
 
 	params := juju.NewAPIConnectionParams{
 		ControllerName: "test",
-		Store: jujuclient.NewFileClientStore(),
-		OpenAPI: nil,
-		DialOpts: api.DialOpts{},
+		Store:          jujuclient.NewFileClientStore(),
+		OpenAPI:        nil,
+		DialOpts:       api.DialOpts{},
 		AccountDetails: &jujuclient.AccountDetails{},
-		ModelUUID: "",
+		ModelUUID:      "",
 	}
 
 	conn, err := juju.NewAPIConnection(params)
@@ -57,45 +59,53 @@ func (m *Manager) getRoot() api.Connection {
 func (m *Manager) init() error {
 	var status []byte
 	var hostname string
-    // TODO: Application root fetch.
+	// TODO: Application root fetch.
 	root := m.getRoot()
 	client := application.NewClient(root)
+
 	rootClient := root.Client()
 
-
-
-
+	store := modelcmd.QualifyingClientStore{
+		ClientStore: jujuclient.NewFileClientStore(),
+	}
+	currentController, err := modelcmd.DetermineCurrentController(store)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	currentModel, err := store.CurrentModel(currentController)
 	if client != nil {
 		panic("Created juju client")
 	}
 
+	klog.Infof("got model %s", currentModel)
+
 	for _, line := range strings.Split(string(status), "\n") {
 		if strings.Contains(line, "kubernetes-worker/") {
 			info := strings.Fields(line)
-			unitName := strings.Replace(info[0],"*", "", -1)
+			unitName := strings.Replace(info[0], "*", "", -1)
 			patterns := make([]string, 1)
 			patterns[0] = "kubernetes-master"
 			status, err := rootClient.Status(patterns)
 			klog.Infof("Applications %s", status.Applications)
 			nodeExec, _ := exec.Command("juju", "exec", "-u", unitName, "hostname").Output()
 			hostname = strings.Fields(string(nodeExec))[0]
-            // POINT 1..,
+			// POINT 1..,
 
-            // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
-            if err != nil {
-                panic(err.Error())
-            }
+			// use the current context in kubeconfig
+			config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
+			if err != nil {
+				panic(err.Error())
+			}
 
-            // create the clientset
-            clientset, err := kubernetes.NewForConfig(config)
-            if err != nil {
-                panic(err.Error())
-            }
-            // TODO: Test
-            _, err = clientset.NodeV1().RuntimeClasses().Patch(context.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"` + hostname + `"}}`), v1.PatchOptions{})
+			// create the clientset
+			clientset, err := kubernetes.NewForConfig(config)
+			if err != nil {
+				panic(err.Error())
+			}
+			// TODO: Test
+			_, err = clientset.NodeV1().RuntimeClasses().Patch(context.TODO(), hostname, types.StrategicMergePatchType, []byte(`{"spec":{"providerID":"`+hostname+`"}}`), v1.PatchOptions{})
 
-            //			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
+			//			exec.Command("kubectl", "patch", "node", hostname, "-p", `{"spec":{"providerID":"` + hostname + `"}}`).Output()
 			m.units[unitName] = &Unit{
 				state:      cloudprovider.InstanceRunning,
 				jujuName:   unitName,
@@ -114,8 +124,8 @@ func (m *Manager) addUnits(delta int) error {
 	prevStatus := m.getStatus()
 
 	cmd := exec.Cmd{
-		Path: juju,
-		Args: []string {juju, "add-unit", "-n", strconv.Itoa(delta), "kubernetes-worker"},
+		Path:   juju,
+		Args:   []string{juju, "add-unit", "-n", strconv.Itoa(delta), "kubernetes-worker"},
 		Stderr: os.Stdout,
 	}
 	cmd.Run()
@@ -138,15 +148,15 @@ func (m *Manager) removeUnit(name string) error {
 	unit.state = cloudprovider.InstanceDeleting
 
 	cmd := exec.Cmd{
-		Path: juju,
-		Args: []string {juju, "run-action", unit.jujuName, "pause", "--wait"},
+		Path:   juju,
+		Args:   []string{juju, "run-action", unit.jujuName, "pause", "--wait"},
 		Stderr: os.Stdout,
 	}
 	cmd.Run()
 
 	cmd = exec.Cmd{
-		Path: juju,
-		Args: []string {juju, "remove-unit", unit.jujuName},
+		Path:   juju,
+		Args:   []string{juju, "remove-unit", unit.jujuName},
 		Stderr: os.Stdout,
 	}
 	cmd.Run()
@@ -171,26 +181,24 @@ func (m *Manager) refresh() error {
 				}
 			}
 
+			// use the current context in kubeconfig
+			config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
+			if err != nil {
+				panic(err.Error())
+			}
 
-            // use the current context in kubeconfig
-            config, err := clientcmd.BuildConfigFromFlags("", m.config.KubeConfigPath)
-            if err != nil {
-                panic(err.Error())
-            }
-
-            // create the clientset
-            clientset, err := kubernetes.NewForConfig(config)
-            if err != nil {
-                panic(err.Error())
-            }
+			// create the clientset
+			clientset, err := kubernetes.NewForConfig(config)
+			if err != nil {
+				panic(err.Error())
+			}
 			if unit.workload == "active" && !unit.registered {
 
-                // TODO: Test
-                _, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
-                // :output, err = clientset.NodeV1()..Get(context.TODO(), "pjds-focal-kvm", metav1.GetOptions{})
-                // patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
-                // output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
-
+				// TODO: Test
+				_, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
+				// :output, err = clientset.NodeV1()..Get(context.TODO(), "pjds-focal-kvm", metav1.GetOptions{})
+				// patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
+				// output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
 
 				if err == nil {
 					unit.registered = true
@@ -223,8 +231,8 @@ func (m *Manager) getStatus() map[string][]string {
 	for _, line := range strings.Split(string(status), "\n") {
 		if strings.Contains(line, "kubernetes-worker/") {
 			info := strings.Fields(line)
-			unitName := strings.Replace(info[0],"*", "", -1)
-			if (info[1] == "terminated") {
+			unitName := strings.Replace(info[0], "*", "", -1)
+			if info[1] == "terminated" {
 				continue
 			} else {
 				units[unitName] = info[0:]
