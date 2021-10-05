@@ -2,20 +2,22 @@ package juju
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/juju/errors"
-	"github.com/juju/juju/api"
-	"github.com/juju/juju/api/application"
 	"github.com/juju/juju/cmd/modelcmd"
-	"github.com/juju/juju/juju"
 	"github.com/juju/juju/jujuclient"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/api"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -36,35 +38,39 @@ type Manager struct {
 	config config.AutoscalingOptions
 }
 
-func (m *Manager) getRoot() api.Connection {
-
-	params := juju.NewAPIConnectionParams{
-		ControllerName: "test",
-		Store:          jujuclient.NewFileClientStore(),
-		OpenAPI:        nil,
-		DialOpts:       api.DialOpts{},
-		AccountDetails: &jujuclient.AccountDetails{},
-		ModelUUID:      "",
-	}
-
-	conn, err := juju.NewAPIConnection(params)
-	if err != nil {
-		panic("Error getting Juju API")
-	}
-
-	return conn
-
+// FOR TESTING
+func dump(name string, value interface{}) {
+	output, _ := json.MarshalIndent(value, "", "	")
+	fmt.Println("=== ", name)
+	fmt.Println(string(output))
+	fmt.Println()
 }
 
 func (m *Manager) init() error {
 	var status []byte
 	var hostname string
-	// TODO: Application root fetch.
-	root := m.getRoot()
-	client := application.NewClient(root)
 
 	// rootClient := root.Client()
+	client, err := client.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	statusAPI := api.NewStatusAPI(client)
+	jujuStatus, err := statusAPI.FullStatus(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dump("Status", jujuStatus)
+
+	modelsAPI := api.NewModelsAPI(client)
+	models, err := modelsAPI.Models()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dump("Models", models)
+
+	panic("dumped models")
 	store := modelcmd.QualifyingClientStore{
 		ClientStore: jujuclient.NewFileClientStore(),
 	}
