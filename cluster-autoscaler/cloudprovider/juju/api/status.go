@@ -5,7 +5,7 @@ import (
 
 	"github.com/juju/juju/apiserver/params"
 
-	"github.com/VariableDeclared/autoscaler/"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
 )
 
 type StatusAPI struct {

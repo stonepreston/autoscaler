@@ -3,13 +3,13 @@ module k8s.io/autoscaler/cluster-autoscaler
 go 1.16
 
 require (
-	cloud.google.com/go v0.56.0
+	cloud.google.com/go v0.81.0
 	github.com/Azure/azure-sdk-for-go v55.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.18
 	github.com/Azure/go-autorest/autorest/adal v0.9.13
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.8 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0
-	github.com/VariableDeclared/autoscaler v0.0.0-20210312121019-5d0526806ea1 // indirect
 	github.com/aws/aws-sdk-go v1.40.46
 	github.com/digitalocean/godo v1.27.0
 	github.com/ghodss/yaml v1.0.0
@@ -29,23 +29,23 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.29.0
+	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	google.golang.org/api v0.46.0
 	gopkg.in/gcfg.v1 v1.2.0
 	gopkg.in/juju/environschema.v1 v1.0.1-0.20201027142642-c89a4490670a
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.23.0-alpha.0
-	k8s.io/apimachinery v0.23.0-alpha.0
-	k8s.io/apiserver v0.23.0-alpha.0
-	k8s.io/client-go v0.23.0-alpha.0
-	k8s.io/cloud-provider v0.23.0-alpha.0
-	k8s.io/component-base v0.23.0-alpha.0
-	k8s.io/component-helpers v0.23.0-alpha.0
+	k8s.io/api v0.23.0-alpha.1
+	k8s.io/apimachinery v0.23.0-alpha.1
+	k8s.io/apiserver v0.23.0-alpha.1
+	k8s.io/client-go v0.23.0-alpha.1
+	k8s.io/cloud-provider v0.23.0-alpha.1
+	k8s.io/component-base v0.23.0-alpha.1
+	k8s.io/component-helpers v0.23.0-alpha.1
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/kubelet v0.0.0
-	k8s.io/kubernetes v1.23.0-alpha.0
+	k8s.io/kubernetes v1.23.0-alpha.1
 	k8s.io/legacy-cloud-providers v0.0.0
-	k8s.io/utils v0.0.0-20210707171843-4b05e18ac7d9
+	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
 )
 
 replace github.com/digitalocean/godo => github.com/digitalocean/godo v1.27.0
@@ -105,3 +105,5 @@ replace k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.23.0-alpha.0
 replace k8s.io/sample-controller => k8s.io/sample-controller v0.23.0-alpha.0
 
 replace k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.23.0-alpha.0
+
+replace k8s.io/autoscaler => /Users/pete/canonical/deployments/dsv/autoscaler/autoscaler

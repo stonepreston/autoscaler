@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/VariableDeclared/autoscaler/cluster-autoscaler/cloudprovider/client"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
 
 	"github.com/juju/errors"
 
