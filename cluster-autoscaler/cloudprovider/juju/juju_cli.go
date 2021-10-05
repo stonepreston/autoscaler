@@ -63,7 +63,7 @@ func (m *Manager) init() error {
 	root := m.getRoot()
 	client := application.NewClient(root)
 
-	rootClient := root.Client()
+	// rootClient := root.Client()
 
 	store := modelcmd.QualifyingClientStore{
 		ClientStore: jujuclient.NewFileClientStore(),

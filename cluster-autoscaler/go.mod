@@ -9,16 +9,20 @@ require (
 	github.com/Azure/go-autorest/autorest/adal v0.9.13
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0
+	github.com/VariableDeclared/autoscaler v0.0.0-20210312121019-5d0526806ea1 // indirect
 	github.com/aws/aws-sdk-go v1.40.46
 	github.com/digitalocean/godo v1.27.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-macaroon-bakery/macaroon-bakery/v3 v3.0.0-20210309064400-d73aa8f92aa2
 	github.com/golang/mock v1.5.0
 	github.com/google/uuid v1.2.0
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/json-iterator/go v1.1.11
 	github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9 // indirect
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
+	github.com/juju/idmclient/v2 v2.0.0-20210309081103-6b4a5212f851
 	github.com/juju/juju v0.0.0-20211001142224-cd69c141f7c8
+	github.com/juju/names/v4 v4.0.0-20200929085019-be23e191fee0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/satori/go.uuid v1.2.0
@@ -28,6 +32,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.29.0
 	gopkg.in/gcfg.v1 v1.2.0
+	gopkg.in/juju/environschema.v1 v1.0.1-0.20201027142642-c89a4490670a
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.0-alpha.0
 	k8s.io/apimachinery v0.23.0-alpha.0
