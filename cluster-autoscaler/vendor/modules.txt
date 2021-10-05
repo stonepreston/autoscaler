@@ -1,7 +1,7 @@
 # cloud.google.com/go v0.81.0
 ## explicit
 cloud.google.com/go/compute/metadata
-# github.com/Azure/azure-sdk-for-go v55.0.0+incompatible
+# github.com/Azure/azure-sdk-for-go v55.0.0+incompatible => github.com/Azure/azure-sdk-for-go v46.4.0+incompatible
 ## explicit
 github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-12-01/compute
 github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry
@@ -23,8 +23,6 @@ github.com/Azure/go-autorest/autorest/azure
 # github.com/Azure/go-autorest/autorest/adal v0.9.13
 ## explicit
 github.com/Azure/go-autorest/autorest/adal
-# github.com/Azure/go-autorest/autorest/azure/auth v0.5.8
-## explicit
 # github.com/Azure/go-autorest/autorest/date v0.3.0
 ## explicit
 github.com/Azure/go-autorest/autorest/date
@@ -275,8 +273,6 @@ github.com/gobwas/glob/util/runes
 github.com/gobwas/glob/util/strings
 # github.com/godbus/dbus/v5 v5.0.4
 github.com/godbus/dbus/v5
-# github.com/gofrs/uuid v4.0.0+incompatible
-github.com/gofrs/uuid
 # github.com/gogo/protobuf v1.3.2
 github.com/gogo/protobuf/gogoproto
 github.com/gogo/protobuf/proto
@@ -432,7 +428,6 @@ github.com/juju/charmrepo/v7/csclient/params
 # github.com/juju/clock v0.0.0-20190205081909-9c5c9712527c
 github.com/juju/clock
 # github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9
-## explicit
 github.com/juju/cmd
 # github.com/juju/cmd/v3 v3.0.0-20210809234809-65029dab4cd0
 github.com/juju/cmd/v3
@@ -2175,4 +2170,5 @@ sigs.k8s.io/yaml
 # k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.23.0-alpha.0
 # k8s.io/sample-controller => k8s.io/sample-controller v0.23.0-alpha.0
 # k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.23.0-alpha.0
+# github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v46.4.0+incompatible
 # k8s.io/autoscaler => /Users/pete/canonical/deployments/dsv/autoscaler/autoscaler

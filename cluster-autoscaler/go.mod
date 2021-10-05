@@ -7,7 +7,6 @@ require (
 	github.com/Azure/azure-sdk-for-go v55.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.18
 	github.com/Azure/go-autorest/autorest/adal v0.9.13
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.8 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/Azure/go-autorest/autorest/to v0.4.0
 	github.com/aws/aws-sdk-go v1.40.46
@@ -18,7 +17,6 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/json-iterator/go v1.1.11
-	github.com/juju/cmd v0.0.0-20200108104440-8e43f3faa5c9 // indirect
 	github.com/juju/errors v0.0.0-20210818161939-5560c4c073ff
 	github.com/juju/idmclient/v2 v2.0.0-20210309081103-6b4a5212f851
 	github.com/juju/juju v0.0.0-20211001142224-cd69c141f7c8
@@ -105,5 +103,7 @@ replace k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.23.0-alpha.0
 replace k8s.io/sample-controller => k8s.io/sample-controller v0.23.0-alpha.0
 
 replace k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.23.0-alpha.0
+
+replace github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v46.4.0+incompatible
 
 replace k8s.io/autoscaler => /Users/pete/canonical/deployments/dsv/autoscaler/autoscaler
