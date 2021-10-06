@@ -84,7 +84,7 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 	if m.applicationAPI == nil {
 		client, err := client.NewClient()
 		if err != nil {
-			return api.ApplicationAPI{}, err
+			return nil, err
 		}
 		m.applicationAPI = api.NewApplicationAPI(client)
 	}
