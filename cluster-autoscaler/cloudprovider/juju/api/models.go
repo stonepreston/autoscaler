@@ -1,6 +1,8 @@
 package api
 
 import (
+	"sync"
+
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
 
 	"github.com/juju/errors"
@@ -12,6 +14,7 @@ import (
 
 type ModelsAPI struct {
 	client *client.Client
+	mu     sync.Mutex
 }
 
 func NewModelsAPI(client *client.Client) *ModelsAPI {
@@ -21,6 +24,7 @@ func NewModelsAPI(client *client.Client) *ModelsAPI {
 }
 
 func (s *ModelsAPI) Models() ([]base.UserModel, error) {
+	s.mu.Lock()
 	accountDetails, err := s.client.AccountDetails()
 	if err != nil {
 		return nil, errors.Trace(err)
@@ -33,6 +37,6 @@ func (s *ModelsAPI) Models() ([]base.UserModel, error) {
 
 	modelAPI := modelmanager.NewClient(root)
 	defer modelAPI.Close()
-
+	s.mu.Lock()
 	return modelAPI.ListModels(accountDetails.User)
 }
