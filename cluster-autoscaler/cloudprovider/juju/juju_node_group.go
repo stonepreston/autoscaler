@@ -31,12 +31,11 @@ import (
 // )
 
 type NodeGroup struct {
-	id         string
-	minSize    int
-	maxSize    int
-	target     int
-	manager    *Manager
-
+	id      string
+	minSize int
+	maxSize int
+	target  int
+	manager *Manager
 }
 
 // MaxSize returns maximum size of the node group.
@@ -72,7 +71,7 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 			n.target, targetSize, n.MaxSize())
 	}
 
-	n.manager.addUnits(delta)
+	n.manager.scaleUnits("kubernetes-worker", delta)
 
 	n.target = targetSize
 
@@ -83,13 +82,9 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 // failure or if the given node doesn't belong to this node group. This function
 // should wait until node group size is updated. Implementation required.
 func (n *NodeGroup) DeleteNodes(nodes []*apiv1.Node) error {
-	// ctx := context.Background()
-	for _, node := range nodes {
-		n.manager.removeUnit(node.Name)
 
-		// decrement the count by one  after a successful delete
-		n.target--
-	}
+	n.manager.scaleUnits("kubernetes-worker", len(nodes))
+	n.target = n.target - len(nodes)
 
 	return nil
 }

@@ -30,8 +30,7 @@ func (s *ModelsAPI) Models() ([]base.UserModel, error) {
 		return nil, errors.Trace(err)
 	}
 
-	modelAPI := modelmanager.NewClient(root)
-	defer modelAPI.Close()
+
 
 	return modelAPI.ListModels(accountDetails.User)
 }
