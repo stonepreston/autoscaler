@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/juju/juju/apiserver/params"
 
@@ -31,8 +32,10 @@ type Unit struct {
 }
 
 type Manager struct {
-	units  map[string]*Unit
-	config config.AutoscalingOptions
+	units     map[string]*Unit
+	config    config.AutoscalingOptions
+	statusAPI *api.StatusAPI
+	mu        sync.Mutex
 }
 
 // FOR TESTING
@@ -78,11 +81,10 @@ func (m *Manager) scaleUnits(name string, delta int) error {
 
 	prevStatus := m.getStatus()
 	client, err := client.NewClient()
+	applicationAPI := api.NewApplicationAPI(client)
 	if err != nil {
 		return err
 	}
-
-	applicationAPI := api.NewApplicationAPI(client)
 
 	applicationAPI.ScaleApplication(name, delta)
 	jujuStatus := m.getStatus()
@@ -168,15 +170,25 @@ func (m *Manager) getUnit(name string) *Unit {
 	return nil
 }
 
-func (m *Manager) getStatus() *params.FullStatus {
-
+func (m *Manager) getStatusAPI() *api.StatusAPI {
+	m.mu.Lock()
 	// rootClient := root.Client()
 	client, err := client.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}
+	m.mu.Unlock()
 
-	statusAPI := api.NewStatusAPI(client)
+	if m.statusAPI == nil {
+		m.statusAPI = api.NewStatusAPI(client)
+	}
+
+	return m.statusAPI
+}
+func (m *Manager) getStatus() *params.FullStatus {
+
+	statusAPI := m.getStatusAPI()
+
 	jujuStatus, err := statusAPI.FullStatus(nil)
 	if err != nil {
 		log.Fatal(err)
