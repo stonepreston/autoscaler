@@ -32,10 +32,11 @@ type Unit struct {
 }
 
 type Manager struct {
-	units     map[string]*Unit
-	config    config.AutoscalingOptions
-	statusAPI *api.StatusAPI
-	mu        sync.Mutex
+	units          map[string]*Unit
+	config         config.AutoscalingOptions
+	statusAPI      *api.StatusAPI
+	applicationAPI *api.ApplicationAPI
+	mu             sync.Mutex
 }
 
 // FOR TESTING
@@ -77,11 +78,25 @@ func (m *Manager) init() error {
 	return nil
 }
 
-func (m *Manager) scaleUnits(name string, delta int) error {
+func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
+	m.mu.Lock()
 
+	if m.applicationAPI == nil {
+		client, err := client.NewClient()
+		if err != nil {
+			return api.ApplicationAPI{}, err
+		}
+		m.applicationAPI = api.NewApplicationAPI(client)
+	}
+
+	m.mu.Unlock()
+	return m.applicationAPI, nil
+}
+
+func (m *Manager) scaleUnits(name string, delta int) error {
 	prevStatus := m.getStatus()
-	client, err := client.NewClient()
-	applicationAPI := api.NewApplicationAPI(client)
+	applicationAPI, err := m.getApplicationAPI()
+
 	if err != nil {
 		return err
 	}
