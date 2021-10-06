@@ -172,17 +172,17 @@ func (m *Manager) getUnit(name string) *Unit {
 
 func (m *Manager) getStatusAPI() *api.StatusAPI {
 	m.mu.Lock()
-	// rootClient := root.Client()
-	client, err := client.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	m.mu.Unlock()
 
 	if m.statusAPI == nil {
+		// rootClient := root.Client()
+		client, err := client.NewClient()
+		if err != nil {
+			log.Fatal(err)
+		}
 		m.statusAPI = api.NewStatusAPI(client)
 	}
 
+	m.mu.Unlock()
 	return m.statusAPI
 }
 func (m *Manager) getStatus() *params.FullStatus {
