@@ -1,10 +1,10 @@
 package api
 
 import (
-	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
-
 	"github.com/juju/errors"
 	"github.com/juju/juju/api/application"
+	"github.com/juju/juju/apiserver/params"
+	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
 )
 
 type ApplicationAPI struct {
@@ -46,7 +46,7 @@ func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, e
 
 }
 
-func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) ([]string, error) {
+func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) (params.ScaleApplicationResult, error) {
 	// accountDetails, err := s.client.AccountDetails()
 
 	// if err != nil {
@@ -55,7 +55,7 @@ func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) ([]
 
 	root, err := s.client.NewAPIRoot()
 	if err != nil {
-		return nil, errors.Trace(err)
+		return params.ScaleApplicationResult{}, errors.Trace(err)
 	}
 	applicationAPI := application.NewClient(root)
 	defer applicationAPI.Close()
@@ -69,7 +69,7 @@ func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) ([]
 	result, err := applicationAPI.ScaleApplication(args)
 
 	if err != nil {
-		return nil, err
+		return params.ScaleApplicationResult{}, err
 	}
 
 	return result, nil

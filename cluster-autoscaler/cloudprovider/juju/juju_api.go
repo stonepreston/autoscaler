@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/juju/juju/apiserver/params"
@@ -45,7 +46,7 @@ func dump(name string, value interface{}) {
 func (m *Manager) init() error {
 
 	// rootClient := root.Client()
-	client, err := client.NewClient()
+	_, err := client.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,13 +54,14 @@ func (m *Manager) init() error {
 	jujuStatus := m.getStatus()
 
 	// panic("dumped models")
-	keys := make([]string, 0, len(jujuStatus["applications"]["kubernetes-worker"]["units"]))
-	for k := range jujuStatus["applications"]["kubernetes-worker"]["units"] {
+	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
+	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
 		keys = append(keys, k)
 	}
+
 	for k8sworker := range keys {
-		machine := jujuStatus["applications"]["kubernetes-worker"]["units"][k8sworker]["machine"]
-		hostname := jujuStatus["machines"][machine]["hostname"]
+		machine := jujuStatus.Applications["kubernetes-worker"].Units[strconv.Itoa(k8sworker)].Machine
+		hostname := jujuStatus.Machines[machine].Hostname
 		m.units[keys[k8sworker]] = &Unit{
 			state:      cloudprovider.InstanceRunning,
 			jujuName:   keys[k8sworker],
@@ -83,9 +85,13 @@ func (m *Manager) scaleUnits(name string, delta int) error {
 	applicationAPI := api.NewApplicationAPI(client)
 
 	applicationAPI.ScaleApplication(name, delta)
-
-	for key, _ := range m.getStatus() {
-		if _, ok := prevStatus[key]; !ok {
+	jujuStatus := m.getStatus()
+	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
+	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
+		keys = append(keys, k)
+	}
+	for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
+		if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
 			m.units[key] = &Unit{
 				state:    cloudprovider.InstanceCreating,
 				jujuName: key,
@@ -96,51 +102,25 @@ func (m *Manager) scaleUnits(name string, delta int) error {
 	return nil
 }
 
-// func (m *Manager) removeUnit(name string, target int) error {
-// 	unit := m.getUnit(name)
-// 	unit.state = cloudprovider.InstanceDeleting
-// 	client, err := client.NewClient()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	// cmd = exec.Cmd{
-// 	// 	Path:   juju,
-// 	// 	Args:   []string{juju, "remove-unit", unit.jujuName},
-// 	// 	Stderr: os.Stdout,
-// 	// }
-// 	applicationAPI := api.NewApplicationAPI(client)
-
-// 	applicationAPI.ScaleApplication(name, target)
-// 	// TODO: is this required?
-// 	// cmd := exec.Cmd{
-// 	// 	Path:   juju,
-// 	// 	Args:   []string{juju, "run-action", unit.jujuName, "pause", "--wait"},
-// 	// 	Stderr: os.Stdout,
-// 	// }
-// 	// cmd.Run()
-
-// 	return nil
-// }
-
 func (m *Manager) refresh() error {
-	for key, val := range m.getStatus() {
+	for key, val := range m.getStatus().Applications["kubernetes-worker"].Units {
 		if _, ok := m.units[key]; ok {
-			m.units[key].agent = val[0]
-			m.units[key].workload = val[1]
+			m.units[key].agent = val.AgentStatus.Info
+			m.units[key].workload = val.WorkloadStatus.Info
 		}
 	}
 	jujuStatus := m.getStatus()
 	// panic("dumped models")
-	keys := make([]string, 0, len(jujuStatus["applications"]["kubernetes-worker"]["units"]))
-	for k := range jujuStatus["applications"]["kubernetes-worker"]["units"] {
+	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
+	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
 		keys = append(keys, k)
 	}
 
 	for _, unit := range m.units {
 		if unit.state == cloudprovider.InstanceCreating {
 			if unit.kubeName == "" {
-				machine := jujuStatus["applications"]["kubernetes-worker"]["units"][unit.jujuName]["machine"]
-				hostname := jujuStatus["machines"][machine]["hostname"]
+				machine := jujuStatus.Applications["kubernetes-worker"].Units[unit.jujuName].Machine
+				hostname := jujuStatus.Machines[machine].Hostname
 				if len(strings.Fields(string(hostname))) > 0 {
 					unit.kubeName = strings.Fields(string(hostname))[0]
 				}
