@@ -94,7 +94,7 @@ replace k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers v0.23.0-a
 
 replace k8s.io/metrics => k8s.io/metrics v0.23.0-alpha.0
 
-replace k8s.io/mount-utils => k8s.io/mount-utils v0.23.0-alpha.0
+replace k8s.io/mount-utils => k8s.io/mount-utils v0.22.2
 
 replace k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.23.0-alpha.0
 
