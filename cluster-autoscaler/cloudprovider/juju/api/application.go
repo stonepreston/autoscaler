@@ -18,11 +18,6 @@ func NewApplicationAPI(client *client.Client) *ApplicationAPI {
 }
 
 func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, error) {
-	// accountDetails, err := s.client.AccountDetails()
-
-	// if err != nil {
-	// 	return nil, errors.Trace(err)
-	// }
 
 	root, err := s.client.NewAPIRoot()
 	if err != nil {
@@ -47,11 +42,6 @@ func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, e
 }
 
 func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) (params.ScaleApplicationResult, error) {
-	// accountDetails, err := s.client.AccountDetails()
-
-	// if err != nil {
-	// 	return nil, errors.Trace(err)
-	// }
 
 	root, err := s.client.NewAPIRoot()
 	if err != nil {

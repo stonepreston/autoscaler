@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/juju/errors"
+
 	"github.com/juju/juju/apiserver/params"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -101,7 +103,10 @@ func (m *Manager) scaleUnits(name string, delta int) error {
 		return err
 	}
 
-	applicationAPI.ScaleApplication(name, delta)
+	_, err = applicationAPI.ScaleApplication(name, delta)
+	if err != nil {
+		panic(errors.Trace(err))
+	}
 	jujuStatus := m.getStatus()
 	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
 	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
