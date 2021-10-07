@@ -37,6 +37,6 @@ func (s *ModelsAPI) Models() ([]base.UserModel, error) {
 
 	modelAPI := modelmanager.NewClient(root)
 	defer modelAPI.Close()
-	s.mu.Lock()
+	s.mu.Unlock()
 	return modelAPI.ListModels(accountDetails.User)
 }

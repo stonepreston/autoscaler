@@ -81,18 +81,18 @@ func (m *Manager) init() error {
 }
 
 func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
-	m.mu.Lock()
+	// m.mu.Lock()
 
-	if m.applicationAPI == nil {
-		client, err := client.NewClient()
-		if err != nil {
-			return nil, err
-		}
-		m.applicationAPI = api.NewApplicationAPI(client)
+	// if m.applicationAPI == nil {
+	client, err := client.NewClient()
+	if err != nil {
+		return nil, err
 	}
+	return api.NewApplicationAPI(client), nil
+	// }
 
-	m.mu.Unlock()
-	return m.applicationAPI, nil
+	// m.mu.Unlock()
+	// return m.applicationAPI, nil/
 }
 
 func (m *Manager) scaleUnits(name string, delta int) error {
@@ -191,19 +191,19 @@ func (m *Manager) getUnit(name string) *Unit {
 }
 
 func (m *Manager) getStatusAPI() *api.StatusAPI {
-	m.mu.Lock()
+	// m.mu.Lock()
 
-	if m.statusAPI == nil {
-		// rootClient := root.Client()
-		client, err := client.NewClient()
-		if err != nil {
-			log.Fatal(err)
-		}
-		m.statusAPI = api.NewStatusAPI(client)
+	// if m.statusAPI == nil {
+	// 	// rootClient := root.Client()
+	client, err := client.NewClient()
+	if err != nil {
+		log.Fatal(err)
 	}
+	return api.NewStatusAPI(client)
+	// }
 
-	m.mu.Unlock()
-	return m.statusAPI
+	// m.mu.Unlock()
+	// return m.statusAPI
 }
 func (m *Manager) getStatus() *params.FullStatus {
 
