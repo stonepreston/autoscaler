@@ -103,7 +103,7 @@ func (m *Manager) scaleUnits(name string, delta int) error {
 		return err
 	}
 
-	_, err = applicationAPI.ScaleApplication(name, delta)
+	_, err = applicationAPI.AddUnit(name, delta)
 	if err != nil {
 		panic(errors.Trace(err))
 	}
