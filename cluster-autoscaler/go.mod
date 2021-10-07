@@ -43,7 +43,7 @@ require (
 	k8s.io/kubelet v0.0.0
 	k8s.io/kubernetes v1.23.0-alpha.1
 	k8s.io/legacy-cloud-providers v0.0.0
-	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
+	k8s.io/utils v0.0.0-20210819203725-bdf08cb9a70a
 )
 
 replace github.com/digitalocean/godo => github.com/digitalocean/godo v1.27.0

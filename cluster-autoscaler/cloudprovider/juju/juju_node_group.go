@@ -71,7 +71,7 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 			n.target, targetSize, n.MaxSize())
 	}
 
-	n.manager.scaleUnits("kubernetes-worker", delta)
+	n.manager.addUnits("kubernetes-worker", delta)
 
 	n.target = targetSize
 
@@ -83,7 +83,7 @@ func (n *NodeGroup) IncreaseSize(delta int) error {
 // should wait until node group size is updated. Implementation required.
 func (n *NodeGroup) DeleteNodes(nodes []*apiv1.Node) error {
 
-	n.manager.scaleUnits("kubernetes-worker", len(nodes))
+	n.manager.removeUnits("kubernetes-worker", len(nodes))
 	n.target = n.target - len(nodes)
 
 	return nil

@@ -41,6 +41,31 @@ func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, e
 
 }
 
+func (s *ApplicationAPI) RemoveUnits(units []string) ([]params.DestroyUnitResult, error) {
+
+	root, err := s.client.NewModelAPIRoot("")
+	if err != nil {
+		return make([]params.DestroyUnitResult, 1), errors.Trace(err)
+	}
+	applicationAPI := application.NewClient(root)
+	defer applicationAPI.Close()
+
+	args := application.DestroyUnitsParams{
+		Units:          units,
+		DestroyStorage: false,
+		Force:          false,
+	}
+
+	result, err := applicationAPI.DestroyUnits(args)
+
+	if err != nil {
+		return make([]params.DestroyUnitResult, 1), err
+	}
+
+	return result, nil
+
+}
+
 func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) (params.ScaleApplicationResult, error) {
 
 	root, err := s.client.NewModelAPIRoot("")
