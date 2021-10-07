@@ -19,7 +19,7 @@ func NewApplicationAPI(client *client.Client) *ApplicationAPI {
 
 func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, error) {
 
-	root, err := s.client.NewAPIRoot()
+	root, err := s.client.NewModelAPIRoot("")
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
