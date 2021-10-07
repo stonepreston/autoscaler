@@ -43,7 +43,7 @@ func (s *ApplicationAPI) AddUnit(applicationName string, units int) ([]string, e
 
 func (s *ApplicationAPI) ScaleApplication(applicationName string, units int) (params.ScaleApplicationResult, error) {
 
-	root, err := s.client.NewAPIRoot()
+	root, err := s.client.NewModelAPIRoot("")
 	if err != nil {
 		return params.ScaleApplicationResult{}, errors.Trace(err)
 	}
