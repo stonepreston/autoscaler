@@ -95,7 +95,7 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 	// return m.applicationAPI, nil/
 }
 
-func (m *Manager) removeUnits(applicationName string, count int) error {
+func (m *Manager) removeUnits(nodeHostnames []string) error {
 	prevStatus := m.getStatus()
 	applicationAPI, err := m.getApplicationAPI()
 
@@ -103,33 +103,26 @@ func (m *Manager) removeUnits(applicationName string, count int) error {
 		return err
 	}
 
-	units := make([]string, count)
-	removed := 0
-	for key, _ := range prevStatus.Applications[applicationName].Units {
-		if removed == count {
-			break
-		}
-		units = append(units, key)
-		removed++
-	}
 
-	_, err = applicationAPI.RemoveUnits(units)
-	if err != nil {
-		panic(errors.Trace(err))
+	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
+	// find unit by hostname
+	for index := range nodeHostnames {
+		for key, _ := range prevStatus.Machines {
+			if nodeHostnames[index] == prevStatus.Machines[key].Hostname {
+				kubernetesWorkerUnit = append(kubernetesWorkerUnit, key)
+			}
+
+		}
 	}
-	// jujuStatus := m.getStatus()
-	// keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
-	// for k := range jujuStatus.Applications["kubernetes-worker"].Units {
-	// 	keys = append(keys, k)
-	// }
-	// for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
-	// 	if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
-	// 		m.units[key] = &Unit{
-	// 			state:    cloudprovider.InstanceCreating,
-	// 			jujuName: key,
-	// 		}
-	// 	}
-	// }
+	// map machines to units.
+	units := make([]string, len(nodeHostnames))
+	for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
+		for machine := range kubernetesWorkerUnit {
+			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == string(machine) {
+				units = append(units, string(machine))
+			}
+		}
+	}
 
 	return nil
 }
