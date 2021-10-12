@@ -13,6 +13,7 @@ import (
 
 	"github.com/juju/juju/apiserver/params"
 
+	apiv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
@@ -95,20 +96,20 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 	// return m.applicationAPI, nil/
 }
 
-func (m *Manager) removeUnits(nodeHostnames []string) error {
+func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	prevStatus := m.getStatus()
-	applicationAPI, err := m.getApplicationAPI()
+	// applicationAPI, err := m.getApplicationAPI()
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 
 	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
 	// find unit by hostname
 	for index := range nodeHostnames {
-		for key, _ := range prevStatus.Machines {
-			if nodeHostnames[index] == prevStatus.Machines[key].Hostname {
+		for key := range prevStatus.Machines {
+			if nodeHostnames[index].ObjectMeta.Name == prevStatus.Machines[key].Hostname {
 				kubernetesWorkerUnit = append(kubernetesWorkerUnit, key)
 			}
 
