@@ -239,7 +239,6 @@ func (m *Manager) getStatusAPI() *api.StatusAPI {
 	// return m.statusAPI
 }
 func (m *Manager) getStatus() *params.FullStatus {
-	m.mu.Lock()
 	statusAPI := m.getStatusAPI()
 
 
@@ -247,7 +246,7 @@ func (m *Manager) getStatus() *params.FullStatus {
 	if err != nil {
 		log.Fatal(err)
 	}
-	m.mu.Unlock()
+
 
 	return jujuStatus
 }
