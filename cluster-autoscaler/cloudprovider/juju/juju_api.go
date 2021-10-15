@@ -104,7 +104,6 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	// 	return err
 	// }
 
-
 	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
 	// find unit by hostname
 	for index := range nodeHostnames {
@@ -223,30 +222,21 @@ func (m *Manager) getUnit(name string) *Unit {
 	return nil
 }
 
-func (m *Manager) getStatusAPI() *api.StatusAPI {
-	// m.mu.Lock()
-
-	// if m.statusAPI == nil {
-	// 	// rootClient := root.Client()
+func (m *Manager) getStatus() *params.FullStatus {
+	m.mu.Lock()
 	client, err := client.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return api.NewStatusAPI(client)
-	// }
 
-	// m.mu.Unlock()
-	// return m.statusAPI
-}
-func (m *Manager) getStatus() *params.FullStatus {
-	statusAPI := m.getStatusAPI()
+	if m.statusAPI == nil {
+		m.statusAPI = api.NewStatusAPI(client)
+	}
 
-
-	jujuStatus, err := statusAPI.FullStatus(nil)
+	jujuStatus, err := m.statusAPI.FullStatus(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-
+	m.mu.Unlock()
 	return jujuStatus
 }
