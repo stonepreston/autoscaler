@@ -88,6 +88,8 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 }
 
 func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	prevStatus := m.getStatus()
 
 	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
