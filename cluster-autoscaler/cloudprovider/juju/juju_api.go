@@ -190,8 +190,8 @@ func (m *Manager) refresh() error {
 }
 
 func (m *Manager) getStatus() *params.FullStatus {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	// m.mu.Lock()
+	// defer m.mu.Unlock()
 	if m.client == nil {
 		var err error
 		m.client, err = client.NewClient()
