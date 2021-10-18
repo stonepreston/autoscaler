@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/juju/errors"
 	"github.com/juju/juju/apiserver/params"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -108,31 +109,39 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			}
 		}
 	}
+	applicationAPI, err := m.getApplicationAPI()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = applicationAPI.RemoveUnits(units)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return nil
 }
 
 func (m *Manager) addUnits(name string, delta int) error {
-	// prevStatus := m.getStatus()
-	// applicationAPI, err := m.getApplicationAPI()
+	prevStatus := m.getStatus()
+	applicationAPI, err := m.getApplicationAPI()
 
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
 
-	// _, err = applicationAPI.AddUnit(name, delta)
-	// if err != nil {
-	// 	panic(errors.Trace(err))
-	// }
-	// jujuStatus := m.getStatus()
+	_, err = applicationAPI.AddUnit(name, delta)
+	if err != nil {
+		panic(errors.Trace(err))
+	}
+	jujuStatus := m.getStatus()
 
-	// for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
-	// 	if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
-	// 		m.units[key] = &Unit{
-	// 			state:    cloudprovider.InstanceCreating,
-	// 			jujuName: key,
-	// 		}
-	// 	}
-	// }
+	for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
+		if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
+			m.units[key] = &Unit{
+				state:    cloudprovider.InstanceCreating,
+				jujuName: key,
+			}
+		}
+	}
 
 	return nil
 }
