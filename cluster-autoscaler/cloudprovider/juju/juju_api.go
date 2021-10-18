@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/juju/errors"
-
 	"github.com/juju/juju/apiserver/params"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -48,12 +46,6 @@ func dump(name string, value interface{}) {
 
 func (m *Manager) init() error {
 
-	// rootClient := root.Client()
-	_, err := client.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	jujuStatus := m.getStatus()
 
 	// panic("dumped models")
@@ -78,8 +70,13 @@ func (m *Manager) init() error {
 }
 
 func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
-
-	client, err := client.NewClient()
+	if m.client != nil {
+		client, err := client.NewClient()
+		if err != nil {
+			log.Fatal(err)
+		}
+		
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +86,6 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 
 func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	prevStatus := m.getStatus()
-	// applicationAPI, err := m.getApplicationAPI()
-
-	// if err != nil {
-	// 	return err
-	// }
 
 	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
 	// find unit by hostname
@@ -118,30 +110,27 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 }
 
 func (m *Manager) addUnits(name string, delta int) error {
-	prevStatus := m.getStatus()
-	applicationAPI, err := m.getApplicationAPI()
+	// prevStatus := m.getStatus()
+	// applicationAPI, err := m.getApplicationAPI()
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	_, err = applicationAPI.AddUnit(name, delta)
-	if err != nil {
-		panic(errors.Trace(err))
-	}
-	jujuStatus := m.getStatus()
-	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
-	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
-		keys = append(keys, k)
-	}
-	for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
-		if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
-			m.units[key] = &Unit{
-				state:    cloudprovider.InstanceCreating,
-				jujuName: key,
-			}
-		}
-	}
+	// _, err = applicationAPI.AddUnit(name, delta)
+	// if err != nil {
+	// 	panic(errors.Trace(err))
+	// }
+	// jujuStatus := m.getStatus()
+
+	// for key, _ := range jujuStatus.Applications["kubernetes-worker"].Units {
+	// 	if _, ok := prevStatus.Applications["kubernetes-worker"].Units[key]; !ok {
+	// 		m.units[key] = &Unit{
+	// 			state:    cloudprovider.InstanceCreating,
+	// 			jujuName: key,
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }
@@ -154,10 +143,6 @@ func (m *Manager) refresh() error {
 		}
 	}
 	jujuStatus := m.getStatus()
-	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
-	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
-		keys = append(keys, k)
-	}
 
 	for _, unit := range m.units {
 		if unit.state == cloudprovider.InstanceCreating {
@@ -202,20 +187,13 @@ func (m *Manager) refresh() error {
 	return nil
 }
 
-func (m *Manager) getUnit(name string) *Unit {
-	for _, unit := range m.units {
-		if unit.kubeName == name {
-			return unit
-		}
-	}
-	return nil
-}
-
 func (m *Manager) getStatus() *params.FullStatus {
-	// m.mu.Lock()
-	client, err := client.NewClient()
-	if err != nil {
-		log.Fatal(err)
+
+	if m.client == nil {
+		m.client, err := client.NewClient()
+		if err {
+			log.Fatal(err)
+		}
 	}
 
 	statusAPI := api.NewStatusAPI(client)
@@ -224,6 +202,6 @@ func (m *Manager) getStatus() *params.FullStatus {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// m.mu.Unlock()
+
 	return jujuStatus
 }
