@@ -34,6 +34,7 @@ type Unit struct {
 type Manager struct {
 	units  map[string]*Unit
 	config config.AutoscalingOptions
+	client *client.Client
 }
 
 // FOR TESTING
@@ -71,16 +72,15 @@ func (m *Manager) init() error {
 
 func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 	if m.client != nil {
-		client, err := client.NewClient()
+		var err error
+		m.client, err = client.NewClient()
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
 	}
-	if err != nil {
-		return nil, err
-	}
-	return api.NewApplicationAPI(client), nil
+
+	return api.NewApplicationAPI(m.client), nil
 
 }
 
@@ -190,13 +190,14 @@ func (m *Manager) refresh() error {
 func (m *Manager) getStatus() *params.FullStatus {
 
 	if m.client == nil {
-		m.client, err := client.NewClient()
-		if err {
+		var err error
+		m.client, err = client.NewClient()
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	statusAPI := api.NewStatusAPI(client)
+	statusAPI := api.NewStatusAPI(m.client)
 
 	jujuStatus, err := statusAPI.FullStatus(nil)
 	if err != nil {
