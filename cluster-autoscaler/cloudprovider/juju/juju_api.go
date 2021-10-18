@@ -111,6 +111,8 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			klog.Warningf("Comparing %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, strMachine)
 			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == strMachine {
 				units = append(units, key)
+				unit := m.getUnit(prevStatus.Machines[strMachine].Hostname)
+				unit.state = cloudprovider.InstanceDeleting
 			}
 		}
 	}
@@ -200,6 +202,15 @@ func (m *Manager) refresh() error {
 		}
 	}
 
+	return nil
+}
+
+func (m *Manager) getUnit(name string) *Unit {
+	for _, unit := range m.units {
+		if unit.kubeName == name {
+			return unit
+		}
+	}
 	return nil
 }
 
