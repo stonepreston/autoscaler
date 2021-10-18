@@ -82,28 +82,18 @@ func (m *Manager) init() error {
 }
 
 func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
-	// m.mu.Lock()
 
-	// if m.applicationAPI == nil {
 	client, err := client.NewClient()
 	if err != nil {
 		return nil, err
 	}
 	return api.NewApplicationAPI(client), nil
-	// }
 
-	// m.mu.Unlock()
-	// return m.applicationAPI, nil/
 }
 
 func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
+	m.mu.Lock()
 	prevStatus := m.getStatus()
-	// applicationAPI, err := m.getApplicationAPI()
-
-	// if err != nil {
-	// 	return err
-	// }
-
 
 	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
 	// find unit by hostname
@@ -124,7 +114,7 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			}
 		}
 	}
-
+	m.mu.Unlock()
 	return nil
 }
 
@@ -165,7 +155,6 @@ func (m *Manager) refresh() error {
 		}
 	}
 	jujuStatus := m.getStatus()
-	// panic("dumped models")
 	keys := make([]string, 0, len(jujuStatus.Applications["kubernetes-worker"].Units))
 	for k := range jujuStatus.Applications["kubernetes-worker"].Units {
 		keys = append(keys, k)
@@ -224,29 +213,21 @@ func (m *Manager) getUnit(name string) *Unit {
 }
 
 func (m *Manager) getStatusAPI() *api.StatusAPI {
-	// m.mu.Lock()
 
-	// if m.statusAPI == nil {
-	// 	// rootClient := root.Client()
 	client, err := client.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}
 	return api.NewStatusAPI(client)
-	// }
 
-	// m.mu.Unlock()
-	// return m.statusAPI
 }
 func (m *Manager) getStatus() *params.FullStatus {
 	statusAPI := m.getStatusAPI()
-
 
 	jujuStatus, err := statusAPI.FullStatus(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	return jujuStatus
 }
