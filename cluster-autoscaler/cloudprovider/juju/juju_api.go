@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/juju/juju/apiserver/params"
 
@@ -35,6 +36,7 @@ type Manager struct {
 	units  map[string]*Unit
 	config config.AutoscalingOptions
 	client *client.Client
+	mu     sync.Mutex
 }
 
 // FOR TESTING
@@ -188,7 +190,8 @@ func (m *Manager) refresh() error {
 }
 
 func (m *Manager) getStatus() *params.FullStatus {
-
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if m.client == nil {
 		var err error
 		m.client, err = client.NewClient()
