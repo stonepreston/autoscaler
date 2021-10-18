@@ -104,8 +104,9 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	units := make([]string, len(nodeHostnames))
 	for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
 		for machine := range kubernetesWorkerUnit {
-			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == string(machine) {
-				units = append(units, string(machine))
+			strMachine := fmt.Sprint(machine)
+			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == strMachine {
+				units = append(units, strMachine)
 			}
 		}
 	}
