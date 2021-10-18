@@ -7,7 +7,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/juju/errors"
 
@@ -35,11 +34,8 @@ type Unit struct {
 }
 
 type Manager struct {
-	units          map[string]*Unit
-	config         config.AutoscalingOptions
-	statusAPI      *api.StatusAPI
-	applicationAPI *api.ApplicationAPI
-	mu             sync.Mutex
+	units  map[string]*Unit
+	config config.AutoscalingOptions
 }
 
 // FOR TESTING
@@ -92,7 +88,6 @@ func (m *Manager) getApplicationAPI() (*api.ApplicationAPI, error) {
 }
 
 func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
-	m.mu.Lock()
 	prevStatus := m.getStatus()
 	// applicationAPI, err := m.getApplicationAPI()
 
@@ -119,7 +114,6 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			}
 		}
 	}
-	m.mu.Unlock()
 	return nil
 }
 
@@ -224,11 +218,9 @@ func (m *Manager) getStatus() *params.FullStatus {
 		log.Fatal(err)
 	}
 
-	if m.statusAPI == nil {
-		m.statusAPI = api.NewStatusAPI(client)
-	}
+	statusAPI := api.NewStatusAPI(client)
 
-	jujuStatus, err := m.statusAPI.FullStatus(nil)
+	jujuStatus, err := statusAPI.FullStatus(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
