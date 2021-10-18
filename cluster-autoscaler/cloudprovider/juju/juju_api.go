@@ -96,6 +96,7 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	// find unit by hostname
 	for index := range nodeHostnames {
 		for key := range prevStatus.Machines {
+			klog.Warningf("Comparing %s with %s", nodeHostnames[index].ObjectMeta.Name, prevStatus.Machines[key].Hostname)
 			if nodeHostnames[index].ObjectMeta.Name == prevStatus.Machines[key].Hostname {
 				kubernetesWorkerUnit = append(kubernetesWorkerUnit, key)
 			}
