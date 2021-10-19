@@ -161,7 +161,6 @@ func (m *Manager) refresh() error {
 			m.units[key].workload = val.WorkloadStatus.Info
 		}
 	}
-	jujuStatus := m.getStatus()
 
 	for _, unit := range m.units {
 		if unit.state == cloudprovider.InstanceCreating {
