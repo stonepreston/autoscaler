@@ -96,7 +96,7 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	// find unit by hostname
 	for index := range nodeHostnames {
 		for key := range prevStatus.Machines {
-			klog.Warningf("Comparing %s with %s", nodeHostnames[index].ObjectMeta.Name, prevStatus.Machines[key].Hostname)
+			klog.Warningf("Finding Hostname -> machine. Comparison: %s with %s", nodeHostnames[index].ObjectMeta.Name, prevStatus.Machines[key].Hostname)
 			if nodeHostnames[index].ObjectMeta.Name == prevStatus.Machines[key].Hostname {
 				kubernetesWorkerMachine = append(kubernetesWorkerMachine, key)
 				break
@@ -109,7 +109,7 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	for machine := range kubernetesWorkerMachine {
 		strMachine := fmt.Sprint(machine)
 		for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
-			klog.Warningf("Comparing %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, strMachine)
+			klog.Warningf("Finding machine -> Unit. Comparison: %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, strMachine)
 			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == strMachine {
 				units = append(units, key)
 				unit := m.getUnit(prevStatus.Machines[strMachine].Hostname)
