@@ -215,8 +215,7 @@ func (m *Manager) getUnit(name string) *Unit {
 }
 
 func (m *Manager) getStatus() *params.FullStatus {
-	// m.mu.Lock()
-	// defer m.mu.Unlock()
+	m.mu.Lock()
 	if m.client == nil {
 		var err error
 		m.client, err = client.NewClient()
@@ -231,6 +230,6 @@ func (m *Manager) getStatus() *params.FullStatus {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	m.mu.Unlock()
 	return jujuStatus
 }
