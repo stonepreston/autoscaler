@@ -116,10 +116,12 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			}
 		}
 	}
+
 	applicationAPI, err := m.getApplicationAPI()
 	if err != nil {
 		log.Fatal(err)
 	}
+	klog.Warningf("Removing units: %s", units)
 	_, err = applicationAPI.RemoveUnits(units)
 	if err != nil {
 		log.Fatal(err)
