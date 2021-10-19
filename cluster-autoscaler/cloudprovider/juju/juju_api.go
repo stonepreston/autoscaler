@@ -107,12 +107,11 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	// map machines to units.
 	units := make([]string, len(nodeHostnames))
 	for machine := range kubernetesWorkerMachine {
-		strMachine := fmt.Sprint(machine)
 		for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
-			klog.Warningf("Finding machine -> Unit. Comparison: %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, strMachine)
-			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == strMachine {
+			klog.Warningf("Finding machine -> Unit. Comparison: %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, kubernetesWorkerMachine[machine])
+			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == kubernetesWorkerMachine[machine] {
 				units = append(units, key)
-				unit := m.getUnit(prevStatus.Machines[strMachine].Hostname)
+				unit := m.getUnit(prevStatus.Machines[kubernetesWorkerMachine[machine]].Hostname)
 				unit.state = cloudprovider.InstanceDeleting
 			}
 		}
