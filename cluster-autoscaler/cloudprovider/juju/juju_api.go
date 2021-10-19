@@ -154,7 +154,8 @@ func (m *Manager) addUnits(name string, delta int) error {
 }
 
 func (m *Manager) refresh() error {
-	for key, val := range m.getStatus().Applications["kubernetes-worker"].Units {
+	jujuStatus := m.getStatus()
+	for key, val := range jujuStatus.Applications["kubernetes-worker"].Units {
 		if _, ok := m.units[key]; ok {
 			m.units[key].agent = val.AgentStatus.Info
 			m.units[key].workload = val.WorkloadStatus.Info
