@@ -92,22 +92,22 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 	defer m.mu.Unlock()
 	prevStatus := m.getStatus()
 
-	kubernetesWorkerUnit := make([]string, len(nodeHostnames))
+	kubernetesWorkerMachine := make([]string, len(nodeHostnames))
 	// find unit by hostname
 	for index := range nodeHostnames {
 		for key := range prevStatus.Machines {
 			klog.Warningf("Comparing %s with %s", nodeHostnames[index].ObjectMeta.Name, prevStatus.Machines[key].Hostname)
 			if nodeHostnames[index].ObjectMeta.Name == prevStatus.Machines[key].Hostname {
-				kubernetesWorkerUnit = append(kubernetesWorkerUnit, key)
+				kubernetesWorkerMachine = append(kubernetesWorkerMachine, key)
 			}
 
 		}
 	}
 	// map machines to units.
 	units := make([]string, len(nodeHostnames))
-	for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
-		for machine := range kubernetesWorkerUnit {
-			strMachine := fmt.Sprint(machine)
+	for machine := range kubernetesWorkerMachine {
+		strMachine := fmt.Sprint(machine)
+		for key, _ := range prevStatus.Applications["kubernetes-worker"].Units {
 			klog.Warningf("Comparing %s with %s", prevStatus.Applications["kubernetes-worker"].Units[key].Machine, strMachine)
 			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == strMachine {
 				units = append(units, key)
