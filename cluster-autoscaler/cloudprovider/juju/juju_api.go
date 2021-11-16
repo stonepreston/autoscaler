@@ -1,7 +1,6 @@
 package juju
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,8 +12,6 @@ import (
 	"github.com/juju/juju/apiserver/params"
 
 	apiv1 "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/api"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider/juju/client"
@@ -179,18 +176,11 @@ func (m *Manager) refresh() error {
 			}
 
 			// create the clientset
-			clientset, err := kubernetes.NewForConfig(config)
+			_, err = kubernetes.NewForConfig(config)
 			if err != nil {
 				panic(err.Error())
 			}
 			if unit.workload == "active" && !unit.registered {
-
-				// TODO: Test
-				_, err := clientset.CoreV1().Nodes().Patch(context.TODO(), "pjds-focal-kvm", types.StrategicMergePatchType, []byte(`{"metadata":{"labels":{"test": "true"}}}`), v1.PatchOptions{})
-				// :output, err = clientset.NodeV1()..Get(context.TODO(), "pjds-focal-kvm", metav1.GetOptions{})
-				// patch := []byte(`{"metadata":{"labels":{"test":"go-two"}}}`)
-				// output, err := clientset.CoreV1().Pods(namespace).Patch(context.TODO(), pod, types.StrategicMergePatchType, patch, v1.PatchOptions{})
-
 				if err == nil {
 					unit.registered = true
 					unit.state = cloudprovider.InstanceRunning
