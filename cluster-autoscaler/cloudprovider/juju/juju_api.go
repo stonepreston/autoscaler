@@ -107,7 +107,9 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == kubernetesWorkerMachine[machine] {
 				units = append(units, key)
 				unit := m.getUnit(prevStatus.Machines[kubernetesWorkerMachine[machine]].Hostname)
-				unit.state = cloudprovider.InstanceDeleting
+				if unit != nil {
+					unit.state = cloudprovider.InstanceDeleting
+				}
 			}
 		}
 	}
