@@ -47,6 +47,8 @@ func dump(name string, value interface{}) {
 
 func (m *Manager) init() error {
 
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	jujuStatus := m.getStatus()
 
 	// panic("dumped models")
@@ -107,9 +109,9 @@ func (m *Manager) removeUnits(nodeHostnames []*apiv1.Node) error {
 			if prevStatus.Applications["kubernetes-worker"].Units[key].Machine == kubernetesWorkerMachine[machine] {
 				units = append(units, key)
 				unit := m.getUnit(prevStatus.Machines[kubernetesWorkerMachine[machine]].Hostname)
-				if unit != nil {
-					unit.state = cloudprovider.InstanceDeleting
-				}
+				// if unit != nil {
+				unit.state = cloudprovider.InstanceDeleting
+				// }
 			}
 		}
 	}
